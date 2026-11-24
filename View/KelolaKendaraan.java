@@ -37,31 +37,31 @@ public class KelolaKendaraan extends javax.swing.JFrame {
         jPanel3 = new javax.swing.JPanel();
         jPanel4 = new javax.swing.JPanel();
         jLabel1 = new javax.swing.JLabel();
-        jComboBox1 = new javax.swing.JComboBox<>();
+        inputdropboxtambahJenisKendaraan = new javax.swing.JComboBox<>();
         jLabel2 = new javax.swing.JLabel();
         jLabel4 = new javax.swing.JLabel();
         jLabel5 = new javax.swing.JLabel();
         jLabel6 = new javax.swing.JLabel();
-        brand = new javax.swing.JTextField();
-        tipe = new javax.swing.JTextField();
-        plat_no = new javax.swing.JTextField();
-        harga = new javax.swing.JTextField();
+        inputtxtIdKendaraan = new javax.swing.JTextField();
+        inputtxtBrand = new javax.swing.JTextField();
+        inputtxtTipe = new javax.swing.JTextField();
+        inputtxtTahun = new javax.swing.JTextField();
         jButton2 = new javax.swing.JButton();
         jButton3 = new javax.swing.JButton();
         jLabel17 = new javax.swing.JLabel();
         jLabel19 = new javax.swing.JLabel();
         jLabel20 = new javax.swing.JLabel();
         jLabel21 = new javax.swing.JLabel();
-        jTextField1 = new javax.swing.JTextField();
-        jTextField2 = new javax.swing.JTextField();
-        jTextField3 = new javax.swing.JTextField();
-        jTextField4 = new javax.swing.JTextField();
+        inputtxtWarna = new javax.swing.JTextField();
+        inputtxtHargaSewa = new javax.swing.JTextField();
+        inputtxtPersenanDenda = new javax.swing.JTextField();
+        inputtxtStatus = new javax.swing.JTextField();
         jLabel22 = new javax.swing.JLabel();
-        jTextField7 = new javax.swing.JTextField();
+        inputtxtPlatNomor = new javax.swing.JTextField();
         jPanel9 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
         jLabel7 = new javax.swing.JLabel();
-        jComboBox2 = new javax.swing.JComboBox<>();
+        inputdropboxreadJenisKendaraan = new javax.swing.JComboBox<>();
         jScrollPane1 = new javax.swing.JScrollPane();
         jTable1 = new javax.swing.JTable();
         jPanel10 = new javax.swing.JPanel();
@@ -74,27 +74,27 @@ public class KelolaKendaraan extends javax.swing.JFrame {
         jLabel13 = new javax.swing.JLabel();
         jButton4 = new javax.swing.JButton();
         jButton5 = new javax.swing.JButton();
-        inputtxtPlat = new javax.swing.JTextField();
+        inputtxteditPlatNomor = new javax.swing.JTextField();
         jLabel39 = new javax.swing.JLabel();
         jLabel40 = new javax.swing.JLabel();
         jLabel41 = new javax.swing.JLabel();
-        jTextField10 = new javax.swing.JTextField();
-        jTextField11 = new javax.swing.JTextField();
-        jTextField12 = new javax.swing.JTextField();
-        jTextField13 = new javax.swing.JTextField();
-        jTextField14 = new javax.swing.JTextField();
-        jTextField15 = new javax.swing.JTextField();
-        jTextField16 = new javax.swing.JTextField();
-        jTextField17 = new javax.swing.JTextField();
+        replaceEditJenisKendaraan = new javax.swing.JTextField();
+        replaceEditIdKendaraan = new javax.swing.JTextField();
+        replaceEditBrand = new javax.swing.JTextField();
+        replaceEditTipe = new javax.swing.JTextField();
+        replaceEditTahun = new javax.swing.JTextField();
+        replacEditWarna = new javax.swing.JTextField();
+        replaceEditHargaSewa = new javax.swing.JTextField();
+        replaceEditPersenanDenda = new javax.swing.JTextField();
         jLabel42 = new javax.swing.JLabel();
-        jTextField5 = new javax.swing.JTextField();
+        replaceEditPlatNomorBaru = new javax.swing.JTextField();
         jPanel11 = new javax.swing.JPanel();
         jPanel8 = new javax.swing.JPanel();
         jLabel14 = new javax.swing.JLabel();
         jButton6 = new javax.swing.JButton();
         jLabel18 = new javax.swing.JLabel();
         jButton7 = new javax.swing.JButton();
-        jTextField8 = new javax.swing.JTextField();
+        inputtxtHapusPlatNomor = new javax.swing.JTextField();
         jLabel23 = new javax.swing.JLabel();
         jLabel24 = new javax.swing.JLabel();
         jLabel25 = new javax.swing.JLabel();
@@ -103,16 +103,16 @@ public class KelolaKendaraan extends javax.swing.JFrame {
         jLabel16 = new javax.swing.JLabel();
         jLabel27 = new javax.swing.JLabel();
         jLabel28 = new javax.swing.JLabel();
-        jLabel29 = new javax.swing.JLabel();
-        jLabel30 = new javax.swing.JLabel();
-        jLabel31 = new javax.swing.JLabel();
-        jLabel32 = new javax.swing.JLabel();
-        jLabel33 = new javax.swing.JLabel();
-        jLabel34 = new javax.swing.JLabel();
-        jLabel35 = new javax.swing.JLabel();
-        jLabel36 = new javax.swing.JLabel();
+        replaceHapusJenisKendaraan = new javax.swing.JLabel();
+        replaceHapusBrand = new javax.swing.JLabel();
+        replaceHapusTipe = new javax.swing.JLabel();
+        replaceHapusTahun = new javax.swing.JLabel();
+        replaceHapusWarna = new javax.swing.JLabel();
+        replaceHapusHargaSewa = new javax.swing.JLabel();
+        replaceHapusPersenanDenda = new javax.swing.JLabel();
+        replaceHapusStatus = new javax.swing.JLabel();
         jLabel37 = new javax.swing.JLabel();
-        jLabel38 = new javax.swing.JLabel();
+        replaceHapusIdKendaraan = new javax.swing.JLabel();
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
         jPanel7.setLayout(jPanel7Layout);
@@ -152,10 +152,10 @@ public class KelolaKendaraan extends javax.swing.JFrame {
         jLabel1.setForeground(new java.awt.Color(0, 0, 0));
         jLabel1.setText("Jenis Kendaraan");
 
-        jComboBox1.setBackground(new java.awt.Color(255, 255, 255));
-        jComboBox1.setForeground(new java.awt.Color(0, 0, 0));
-        jComboBox1.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pilih Jenis Kendaraan", "Mobil", "Motor", " " }));
-        jComboBox1.addActionListener(this::jComboBox1ActionPerformed);
+        inputdropboxtambahJenisKendaraan.setBackground(new java.awt.Color(255, 255, 255));
+        inputdropboxtambahJenisKendaraan.setForeground(new java.awt.Color(0, 0, 0));
+        inputdropboxtambahJenisKendaraan.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pilih Jenis Kendaraan", "Mobil", "Motor", " " }));
+        inputdropboxtambahJenisKendaraan.addActionListener(this::inputdropboxtambahJenisKendaraanActionPerformed);
 
         jLabel2.setBackground(new java.awt.Color(255, 255, 255));
         jLabel2.setForeground(new java.awt.Color(0, 0, 0));
@@ -173,18 +173,18 @@ public class KelolaKendaraan extends javax.swing.JFrame {
         jLabel6.setForeground(new java.awt.Color(0, 0, 0));
         jLabel6.setText("Tahun");
 
-        brand.setBackground(new java.awt.Color(255, 255, 255));
-        brand.setForeground(new java.awt.Color(0, 0, 0));
-        brand.addActionListener(this::brandActionPerformed);
+        inputtxtIdKendaraan.setBackground(new java.awt.Color(255, 255, 255));
+        inputtxtIdKendaraan.setForeground(new java.awt.Color(0, 0, 0));
+        inputtxtIdKendaraan.addActionListener(this::inputtxtIdKendaraanActionPerformed);
 
-        tipe.setBackground(new java.awt.Color(255, 255, 255));
-        tipe.setForeground(new java.awt.Color(0, 0, 0));
+        inputtxtBrand.setBackground(new java.awt.Color(255, 255, 255));
+        inputtxtBrand.setForeground(new java.awt.Color(0, 0, 0));
 
-        plat_no.setBackground(new java.awt.Color(255, 255, 255));
-        plat_no.setForeground(new java.awt.Color(0, 0, 0));
+        inputtxtTipe.setBackground(new java.awt.Color(255, 255, 255));
+        inputtxtTipe.setForeground(new java.awt.Color(0, 0, 0));
 
-        harga.setBackground(new java.awt.Color(255, 255, 255));
-        harga.setForeground(new java.awt.Color(0, 0, 0));
+        inputtxtTahun.setBackground(new java.awt.Color(255, 255, 255));
+        inputtxtTahun.setForeground(new java.awt.Color(0, 0, 0));
 
         jButton2.setBackground(new java.awt.Color(255, 255, 255));
         jButton2.setForeground(new java.awt.Color(0, 0, 0));
@@ -212,24 +212,24 @@ public class KelolaKendaraan extends javax.swing.JFrame {
         jLabel21.setForeground(new java.awt.Color(0, 0, 0));
         jLabel21.setText("Status");
 
-        jTextField1.setBackground(null);
-        jTextField1.setForeground(new java.awt.Color(0, 0, 0));
+        inputtxtWarna.setBackground(null);
+        inputtxtWarna.setForeground(new java.awt.Color(0, 0, 0));
 
-        jTextField2.setBackground(null);
-        jTextField2.setForeground(new java.awt.Color(0, 0, 0));
+        inputtxtHargaSewa.setBackground(null);
+        inputtxtHargaSewa.setForeground(new java.awt.Color(0, 0, 0));
 
-        jTextField3.setBackground(null);
-        jTextField3.setForeground(new java.awt.Color(0, 0, 0));
+        inputtxtPersenanDenda.setBackground(null);
+        inputtxtPersenanDenda.setForeground(new java.awt.Color(0, 0, 0));
 
-        jTextField4.setBackground(null);
-        jTextField4.setForeground(new java.awt.Color(0, 0, 0));
+        inputtxtStatus.setBackground(null);
+        inputtxtStatus.setForeground(new java.awt.Color(0, 0, 0));
 
         jLabel22.setBackground(new java.awt.Color(255, 255, 255));
         jLabel22.setForeground(new java.awt.Color(0, 0, 0));
         jLabel22.setText("Plat Nomor");
 
-        jTextField7.setBackground(new java.awt.Color(255, 255, 255));
-        jTextField7.setForeground(new java.awt.Color(0, 0, 0));
+        inputtxtPlatNomor.setBackground(new java.awt.Color(255, 255, 255));
+        inputtxtPlatNomor.setForeground(new java.awt.Color(0, 0, 0));
 
         javax.swing.GroupLayout jPanel4Layout = new javax.swing.GroupLayout(jPanel4);
         jPanel4.setLayout(jPanel4Layout);
@@ -258,18 +258,18 @@ public class KelolaKendaraan extends javax.swing.JFrame {
                             .addComponent(jLabel22))
                         .addGap(33, 33, 33)
                         .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(brand)
-                            .addComponent(tipe)
-                            .addComponent(plat_no)
-                            .addComponent(harga)
-                            .addComponent(jTextField1)
-                            .addComponent(jTextField2)
-                            .addComponent(jTextField3)
+                            .addComponent(inputtxtIdKendaraan)
+                            .addComponent(inputtxtBrand)
+                            .addComponent(inputtxtTipe)
+                            .addComponent(inputtxtTahun)
+                            .addComponent(inputtxtWarna)
+                            .addComponent(inputtxtHargaSewa)
+                            .addComponent(inputtxtPersenanDenda)
                             .addGroup(jPanel4Layout.createSequentialGroup()
-                                .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addComponent(inputdropboxtambahJenisKendaraan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                                 .addGap(0, 388, Short.MAX_VALUE))
-                            .addComponent(jTextField4)
-                            .addComponent(jTextField7))))
+                            .addComponent(inputtxtStatus)
+                            .addComponent(inputtxtPlatNomor))))
                 .addGap(321, 321, 321))
         );
         jPanel4Layout.setVerticalGroup(
@@ -278,43 +278,43 @@ public class KelolaKendaraan extends javax.swing.JFrame {
                 .addGap(22, 22, 22)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel1)
-                    .addComponent(jComboBox1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputdropboxtambahJenisKendaraan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel22)
-                    .addComponent(jTextField7, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputtxtPlatNomor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(17, 17, 17)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel2)
-                    .addComponent(brand, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputtxtIdKendaraan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel4)
-                    .addComponent(tipe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputtxtBrand, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel5)
-                    .addComponent(plat_no, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputtxtTipe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel6)
-                    .addComponent(harga, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputtxtTahun, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel17)
-                    .addComponent(jTextField1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputtxtWarna, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel19)
-                    .addComponent(jTextField2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputtxtHargaSewa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel20)
-                    .addComponent(jTextField3, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputtxtPersenanDenda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel21)
-                    .addComponent(jTextField4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputtxtStatus, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(28, 28, 28)
                 .addGroup(jPanel4Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton2)
@@ -344,9 +344,9 @@ public class KelolaKendaraan extends javax.swing.JFrame {
         jLabel7.setForeground(new java.awt.Color(0, 0, 0));
         jLabel7.setText("Jenis Kendaraan");
 
-        jComboBox2.setBackground(new java.awt.Color(255, 255, 255));
-        jComboBox2.setForeground(new java.awt.Color(0, 0, 0));
-        jComboBox2.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pilih Jenis Kendaraan", "Mobil", "Motor" }));
+        inputdropboxreadJenisKendaraan.setBackground(new java.awt.Color(255, 255, 255));
+        inputdropboxreadJenisKendaraan.setForeground(new java.awt.Color(0, 0, 0));
+        inputdropboxreadJenisKendaraan.setModel(new javax.swing.DefaultComboBoxModel<>(new String[] { "Pilih Jenis Kendaraan", "Mobil", "Motor" }));
 
         jScrollPane1.setBackground(new java.awt.Color(255, 255, 255));
         jScrollPane1.setBorder(javax.swing.BorderFactory.createEtchedBorder());
@@ -399,7 +399,7 @@ public class KelolaKendaraan extends javax.swing.JFrame {
                     .addGroup(jPanel5Layout.createSequentialGroup()
                         .addComponent(jLabel7)
                         .addGap(29, 29, 29)
-                        .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(inputdropboxreadJenisKendaraan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addGap(0, 709, Short.MAX_VALUE)))
                 .addContainerGap())
         );
@@ -409,7 +409,7 @@ public class KelolaKendaraan extends javax.swing.JFrame {
                 .addGap(27, 27, 27)
                 .addGroup(jPanel5Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel7)
-                    .addComponent(jComboBox2, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputdropboxreadJenisKendaraan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 307, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addContainerGap(261, Short.MAX_VALUE))
@@ -462,8 +462,8 @@ public class KelolaKendaraan extends javax.swing.JFrame {
         jButton5.setForeground(new java.awt.Color(0, 0, 0));
         jButton5.setText("Clear");
 
-        inputtxtPlat.setBackground(new java.awt.Color(255, 255, 255));
-        inputtxtPlat.setForeground(new java.awt.Color(0, 0, 0));
+        inputtxteditPlatNomor.setBackground(new java.awt.Color(255, 255, 255));
+        inputtxteditPlatNomor.setForeground(new java.awt.Color(0, 0, 0));
 
         jLabel39.setBackground(new java.awt.Color(255, 255, 255));
         jLabel39.setForeground(new java.awt.Color(0, 0, 0));
@@ -477,36 +477,36 @@ public class KelolaKendaraan extends javax.swing.JFrame {
         jLabel41.setForeground(new java.awt.Color(0, 0, 0));
         jLabel41.setText("Persenan Denda");
 
-        jTextField10.setBackground(new java.awt.Color(255, 255, 255));
-        jTextField10.setForeground(new java.awt.Color(0, 0, 0));
+        replaceEditJenisKendaraan.setBackground(new java.awt.Color(255, 255, 255));
+        replaceEditJenisKendaraan.setForeground(new java.awt.Color(0, 0, 0));
 
-        jTextField11.setBackground(new java.awt.Color(255, 255, 255));
-        jTextField11.setForeground(new java.awt.Color(0, 0, 0));
+        replaceEditIdKendaraan.setBackground(new java.awt.Color(255, 255, 255));
+        replaceEditIdKendaraan.setForeground(new java.awt.Color(0, 0, 0));
 
-        jTextField12.setBackground(new java.awt.Color(255, 255, 255));
-        jTextField12.setForeground(new java.awt.Color(0, 0, 0));
+        replaceEditBrand.setBackground(new java.awt.Color(255, 255, 255));
+        replaceEditBrand.setForeground(new java.awt.Color(0, 0, 0));
 
-        jTextField13.setBackground(new java.awt.Color(255, 255, 255));
-        jTextField13.setForeground(new java.awt.Color(0, 0, 0));
+        replaceEditTipe.setBackground(new java.awt.Color(255, 255, 255));
+        replaceEditTipe.setForeground(new java.awt.Color(0, 0, 0));
 
-        jTextField14.setBackground(new java.awt.Color(255, 255, 255));
-        jTextField14.setForeground(new java.awt.Color(0, 0, 0));
+        replaceEditTahun.setBackground(new java.awt.Color(255, 255, 255));
+        replaceEditTahun.setForeground(new java.awt.Color(0, 0, 0));
 
-        jTextField15.setBackground(new java.awt.Color(255, 255, 255));
-        jTextField15.setForeground(new java.awt.Color(0, 0, 0));
+        replacEditWarna.setBackground(new java.awt.Color(255, 255, 255));
+        replacEditWarna.setForeground(new java.awt.Color(0, 0, 0));
 
-        jTextField16.setBackground(new java.awt.Color(255, 255, 255));
-        jTextField16.setForeground(new java.awt.Color(0, 0, 0));
+        replaceEditHargaSewa.setBackground(new java.awt.Color(255, 255, 255));
+        replaceEditHargaSewa.setForeground(new java.awt.Color(0, 0, 0));
 
-        jTextField17.setBackground(new java.awt.Color(255, 255, 255));
-        jTextField17.setForeground(new java.awt.Color(0, 0, 0));
+        replaceEditPersenanDenda.setBackground(new java.awt.Color(255, 255, 255));
+        replaceEditPersenanDenda.setForeground(new java.awt.Color(0, 0, 0));
 
         jLabel42.setBackground(new java.awt.Color(255, 255, 255));
         jLabel42.setForeground(new java.awt.Color(0, 0, 0));
         jLabel42.setText("Plat Nomor Baru");
 
-        jTextField5.setBackground(new java.awt.Color(255, 255, 255));
-        jTextField5.setForeground(new java.awt.Color(0, 0, 0));
+        replaceEditPlatNomorBaru.setBackground(new java.awt.Color(255, 255, 255));
+        replaceEditPlatNomorBaru.setForeground(new java.awt.Color(0, 0, 0));
 
         javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
         jPanel6.setLayout(jPanel6Layout);
@@ -541,16 +541,16 @@ public class KelolaKendaraan extends javax.swing.JFrame {
                                 .addComponent(jLabel42)
                                 .addGap(91, 91, 91)))
                         .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(inputtxtPlat)
-                            .addComponent(jTextField10)
-                            .addComponent(jTextField11)
-                            .addComponent(jTextField12)
-                            .addComponent(jTextField13)
-                            .addComponent(jTextField14)
-                            .addComponent(jTextField15)
-                            .addComponent(jTextField16)
-                            .addComponent(jTextField17)
-                            .addComponent(jTextField5, javax.swing.GroupLayout.DEFAULT_SIZE, 418, Short.MAX_VALUE))))
+                            .addComponent(inputtxteditPlatNomor)
+                            .addComponent(replaceEditJenisKendaraan)
+                            .addComponent(replaceEditIdKendaraan)
+                            .addComponent(replaceEditBrand)
+                            .addComponent(replaceEditTipe)
+                            .addComponent(replaceEditTahun)
+                            .addComponent(replacEditWarna)
+                            .addComponent(replaceEditHargaSewa)
+                            .addComponent(replaceEditPersenanDenda)
+                            .addComponent(replaceEditPlatNomorBaru, javax.swing.GroupLayout.DEFAULT_SIZE, 418, Short.MAX_VALUE))))
                 .addGap(443, 443, 443))
         );
         jPanel6Layout.setVerticalGroup(
@@ -559,43 +559,43 @@ public class KelolaKendaraan extends javax.swing.JFrame {
                 .addGap(24, 24, 24)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel8)
-                    .addComponent(inputtxtPlat, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputtxteditPlatNomor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel9)
-                    .addComponent(jTextField10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(replaceEditJenisKendaraan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel10)
-                    .addComponent(jTextField11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(replaceEditIdKendaraan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel11)
-                    .addComponent(jTextField12, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(replaceEditBrand, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel12)
-                    .addComponent(jTextField13, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(replaceEditTipe, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel13)
-                    .addComponent(jTextField14, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(replaceEditTahun, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel39)
-                    .addComponent(jTextField15, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(replacEditWarna, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel40)
-                    .addComponent(jTextField16, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(replaceEditHargaSewa, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel41)
-                    .addComponent(jTextField17, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(replaceEditPersenanDenda, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel42)
-                    .addComponent(jTextField5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(replaceEditPlatNomorBaru, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(19, 19, 19)
                 .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jButton4)
@@ -635,8 +635,8 @@ public class KelolaKendaraan extends javax.swing.JFrame {
         jButton7.setForeground(new java.awt.Color(0, 0, 0));
         jButton7.setText("Tidak");
 
-        jTextField8.setBackground(new java.awt.Color(255, 255, 255));
-        jTextField8.setForeground(new java.awt.Color(0, 0, 0));
+        inputtxtHapusPlatNomor.setBackground(new java.awt.Color(255, 255, 255));
+        inputtxtHapusPlatNomor.setForeground(new java.awt.Color(0, 0, 0));
 
         jLabel23.setBackground(new java.awt.Color(255, 255, 255));
         jLabel23.setForeground(new java.awt.Color(0, 0, 0));
@@ -670,45 +670,45 @@ public class KelolaKendaraan extends javax.swing.JFrame {
         jLabel28.setForeground(new java.awt.Color(0, 0, 0));
         jLabel28.setText("Status");
 
-        jLabel29.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel29.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel29.setText("-");
+        replaceHapusJenisKendaraan.setBackground(new java.awt.Color(255, 255, 255));
+        replaceHapusJenisKendaraan.setForeground(new java.awt.Color(0, 0, 0));
+        replaceHapusJenisKendaraan.setText("-");
 
-        jLabel30.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel30.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel30.setText("-");
+        replaceHapusBrand.setBackground(new java.awt.Color(255, 255, 255));
+        replaceHapusBrand.setForeground(new java.awt.Color(0, 0, 0));
+        replaceHapusBrand.setText("-");
 
-        jLabel31.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel31.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel31.setText("-");
+        replaceHapusTipe.setBackground(new java.awt.Color(255, 255, 255));
+        replaceHapusTipe.setForeground(new java.awt.Color(0, 0, 0));
+        replaceHapusTipe.setText("-");
 
-        jLabel32.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel32.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel32.setText("-");
+        replaceHapusTahun.setBackground(new java.awt.Color(255, 255, 255));
+        replaceHapusTahun.setForeground(new java.awt.Color(0, 0, 0));
+        replaceHapusTahun.setText("-");
 
-        jLabel33.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel33.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel33.setText("-");
+        replaceHapusWarna.setBackground(new java.awt.Color(255, 255, 255));
+        replaceHapusWarna.setForeground(new java.awt.Color(0, 0, 0));
+        replaceHapusWarna.setText("-");
 
-        jLabel34.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel34.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel34.setText("-");
+        replaceHapusHargaSewa.setBackground(new java.awt.Color(255, 255, 255));
+        replaceHapusHargaSewa.setForeground(new java.awt.Color(0, 0, 0));
+        replaceHapusHargaSewa.setText("-");
 
-        jLabel35.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel35.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel35.setText("-");
+        replaceHapusPersenanDenda.setBackground(new java.awt.Color(255, 255, 255));
+        replaceHapusPersenanDenda.setForeground(new java.awt.Color(0, 0, 0));
+        replaceHapusPersenanDenda.setText("-");
 
-        jLabel36.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel36.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel36.setText("-");
+        replaceHapusStatus.setBackground(new java.awt.Color(255, 255, 255));
+        replaceHapusStatus.setForeground(new java.awt.Color(0, 0, 0));
+        replaceHapusStatus.setText("-");
 
         jLabel37.setBackground(new java.awt.Color(255, 255, 255));
         jLabel37.setForeground(new java.awt.Color(0, 0, 0));
         jLabel37.setText("Id Kendaraan");
 
-        jLabel38.setBackground(new java.awt.Color(255, 255, 255));
-        jLabel38.setForeground(new java.awt.Color(0, 0, 0));
-        jLabel38.setText("-");
+        replaceHapusIdKendaraan.setBackground(new java.awt.Color(255, 255, 255));
+        replaceHapusIdKendaraan.setForeground(new java.awt.Color(0, 0, 0));
+        replaceHapusIdKendaraan.setText("-");
 
         javax.swing.GroupLayout jPanel8Layout = new javax.swing.GroupLayout(jPanel8);
         jPanel8.setLayout(jPanel8Layout);
@@ -737,16 +737,16 @@ public class KelolaKendaraan extends javax.swing.JFrame {
                             .addComponent(jLabel37, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addGap(35, 35, 35)
                         .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addComponent(jLabel36)
-                            .addComponent(jLabel35)
-                            .addComponent(jLabel34)
-                            .addComponent(jLabel33)
-                            .addComponent(jLabel32)
-                            .addComponent(jLabel31)
-                            .addComponent(jLabel30)
-                            .addComponent(jLabel29)
-                            .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, 367, javax.swing.GroupLayout.PREFERRED_SIZE)
-                            .addComponent(jLabel38))))
+                            .addComponent(replaceHapusStatus)
+                            .addComponent(replaceHapusPersenanDenda)
+                            .addComponent(replaceHapusHargaSewa)
+                            .addComponent(replaceHapusWarna)
+                            .addComponent(replaceHapusTahun)
+                            .addComponent(replaceHapusTipe)
+                            .addComponent(replaceHapusBrand)
+                            .addComponent(replaceHapusJenisKendaraan)
+                            .addComponent(inputtxtHapusPlatNomor, javax.swing.GroupLayout.PREFERRED_SIZE, 367, javax.swing.GroupLayout.PREFERRED_SIZE)
+                            .addComponent(replaceHapusIdKendaraan))))
                 .addContainerGap(535, Short.MAX_VALUE))
         );
         jPanel8Layout.setVerticalGroup(
@@ -755,43 +755,43 @@ public class KelolaKendaraan extends javax.swing.JFrame {
                 .addGap(24, 24, 24)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel14)
-                    .addComponent(jTextField8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
+                    .addComponent(inputtxtHapusPlatNomor, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel23)
-                    .addComponent(jLabel29))
+                    .addComponent(replaceHapusJenisKendaraan))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel37)
-                    .addComponent(jLabel38))
+                    .addComponent(replaceHapusIdKendaraan))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel24)
-                    .addComponent(jLabel30))
+                    .addComponent(replaceHapusBrand))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel25)
-                    .addComponent(jLabel31))
+                    .addComponent(replaceHapusTipe))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel26)
-                    .addComponent(jLabel32))
+                    .addComponent(replaceHapusTahun))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel15)
-                    .addComponent(jLabel33))
+                    .addComponent(replaceHapusWarna))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel16)
-                    .addComponent(jLabel34))
+                    .addComponent(replaceHapusHargaSewa))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel27)
-                    .addComponent(jLabel35))
+                    .addComponent(replaceHapusPersenanDenda))
                 .addGap(18, 18, 18)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel28)
-                    .addComponent(jLabel36))
+                    .addComponent(replaceHapusStatus))
                 .addGap(28, 28, 28)
                 .addGroup(jPanel8Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
                     .addComponent(jLabel18)
@@ -870,23 +870,23 @@ public class KelolaKendaraan extends javax.swing.JFrame {
 
     private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
         // TODO add your handling code here:
-        this.brand.setText("");
-        this.tipe.setText("");
-        this.plat_no.setText("");
-        this.harga.setText("");
+        this.inputtxtIdKendaraan.setText("");
+        this.inputtxtBrand.setText("");
+        this.inputtxtTipe.setText("");
+        this.inputtxtTahun.setText("");
     }//GEN-LAST:event_jButton3ActionPerformed
 
     private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
     }//GEN-LAST:event_jButton2ActionPerformed
 
-    private void brandActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_brandActionPerformed
+    private void inputtxtIdKendaraanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputtxtIdKendaraanActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_brandActionPerformed
+    }//GEN-LAST:event_inputtxtIdKendaraanActionPerformed
 
-    private void jComboBox1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jComboBox1ActionPerformed
+    private void inputdropboxtambahJenisKendaraanActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_inputdropboxtambahJenisKendaraanActionPerformed
         // TODO add your handling code here:
-    }//GEN-LAST:event_jComboBox1ActionPerformed
+    }//GEN-LAST:event_inputdropboxtambahJenisKendaraanActionPerformed
 
     /**
      * @param args the command line arguments
@@ -914,9 +914,19 @@ public class KelolaKendaraan extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JTextField brand;
-    private javax.swing.JTextField harga;
-    private javax.swing.JTextField inputtxtPlat;
+    private javax.swing.JComboBox<String> inputdropboxreadJenisKendaraan;
+    private javax.swing.JComboBox<String> inputdropboxtambahJenisKendaraan;
+    private javax.swing.JTextField inputtxtBrand;
+    private javax.swing.JTextField inputtxtHapusPlatNomor;
+    private javax.swing.JTextField inputtxtHargaSewa;
+    private javax.swing.JTextField inputtxtIdKendaraan;
+    private javax.swing.JTextField inputtxtPersenanDenda;
+    private javax.swing.JTextField inputtxtPlatNomor;
+    private javax.swing.JTextField inputtxtStatus;
+    private javax.swing.JTextField inputtxtTahun;
+    private javax.swing.JTextField inputtxtTipe;
+    private javax.swing.JTextField inputtxtWarna;
+    private javax.swing.JTextField inputtxteditPlatNomor;
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
     private javax.swing.JButton jButton3;
@@ -924,8 +934,6 @@ public class KelolaKendaraan extends javax.swing.JFrame {
     private javax.swing.JButton jButton5;
     private javax.swing.JButton jButton6;
     private javax.swing.JButton jButton7;
-    private javax.swing.JComboBox<String> jComboBox1;
-    private javax.swing.JComboBox<String> jComboBox2;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel10;
     private javax.swing.JLabel jLabel11;
@@ -947,17 +955,8 @@ public class KelolaKendaraan extends javax.swing.JFrame {
     private javax.swing.JLabel jLabel26;
     private javax.swing.JLabel jLabel27;
     private javax.swing.JLabel jLabel28;
-    private javax.swing.JLabel jLabel29;
     private javax.swing.JLabel jLabel3;
-    private javax.swing.JLabel jLabel30;
-    private javax.swing.JLabel jLabel31;
-    private javax.swing.JLabel jLabel32;
-    private javax.swing.JLabel jLabel33;
-    private javax.swing.JLabel jLabel34;
-    private javax.swing.JLabel jLabel35;
-    private javax.swing.JLabel jLabel36;
     private javax.swing.JLabel jLabel37;
-    private javax.swing.JLabel jLabel38;
     private javax.swing.JLabel jLabel39;
     private javax.swing.JLabel jLabel4;
     private javax.swing.JLabel jLabel40;
@@ -982,22 +981,23 @@ public class KelolaKendaraan extends javax.swing.JFrame {
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
     private javax.swing.JTable jTable1;
-    private javax.swing.JTextField jTextField1;
-    private javax.swing.JTextField jTextField10;
-    private javax.swing.JTextField jTextField11;
-    private javax.swing.JTextField jTextField12;
-    private javax.swing.JTextField jTextField13;
-    private javax.swing.JTextField jTextField14;
-    private javax.swing.JTextField jTextField15;
-    private javax.swing.JTextField jTextField16;
-    private javax.swing.JTextField jTextField17;
-    private javax.swing.JTextField jTextField2;
-    private javax.swing.JTextField jTextField3;
-    private javax.swing.JTextField jTextField4;
-    private javax.swing.JTextField jTextField5;
-    private javax.swing.JTextField jTextField7;
-    private javax.swing.JTextField jTextField8;
-    private javax.swing.JTextField plat_no;
-    private javax.swing.JTextField tipe;
+    private javax.swing.JTextField replacEditWarna;
+    private javax.swing.JTextField replaceEditBrand;
+    private javax.swing.JTextField replaceEditHargaSewa;
+    private javax.swing.JTextField replaceEditIdKendaraan;
+    private javax.swing.JTextField replaceEditJenisKendaraan;
+    private javax.swing.JTextField replaceEditPersenanDenda;
+    private javax.swing.JTextField replaceEditPlatNomorBaru;
+    private javax.swing.JTextField replaceEditTahun;
+    private javax.swing.JTextField replaceEditTipe;
+    private javax.swing.JLabel replaceHapusBrand;
+    private javax.swing.JLabel replaceHapusHargaSewa;
+    private javax.swing.JLabel replaceHapusIdKendaraan;
+    private javax.swing.JLabel replaceHapusJenisKendaraan;
+    private javax.swing.JLabel replaceHapusPersenanDenda;
+    private javax.swing.JLabel replaceHapusStatus;
+    private javax.swing.JLabel replaceHapusTahun;
+    private javax.swing.JLabel replaceHapusTipe;
+    private javax.swing.JLabel replaceHapusWarna;
     // End of variables declaration//GEN-END:variables
 }
