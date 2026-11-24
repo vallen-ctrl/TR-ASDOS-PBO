@@ -15,8 +15,65 @@ public class FormLogin extends javax.swing.JFrame {
     /**
      * Creates new form FormLogin
      */
-    public FormLogin() {
+        public FormLogin() {
         initComponents();
+        setLocationRelativeTo(null);
+        getRootPane().setDefaultButton(jButton1); // tekan Enter = klik Login
+        
+        jButton2.addActionListener(evt -> resetForm());
+    }
+
+    private final Controller.AuthController auth = new Controller.AuthController();
+
+    private void prosesLogin() {
+        final String username = inputtxtUsername.getText();
+        final String password = new String(inputtxtPassword.getPassword());
+
+        jButton1.setEnabled(false);
+        new javax.swing.SwingWorker<Model.AdminModel.Akun, Void>() {
+            @Override
+            protected Model.AdminModel.Akun doInBackground() throws Exception {
+                return auth.login(username, password);
+            }
+
+            @Override
+            protected void done() {
+                jButton1.setEnabled(true);
+                try {
+                    bukaDashboard(get());
+                } catch (java.util.concurrent.ExecutionException e) {
+                    Throwable sebab = e.getCause();
+                    javax.swing.JOptionPane.showMessageDialog(FormLogin.this,
+                            sebab.getMessage(), "Login gagal",
+                            javax.swing.JOptionPane.WARNING_MESSAGE);
+                    inputtxtPassword.setText("");
+                    inputtxtPassword.requestFocus();
+                } catch (InterruptedException e) {
+                    Thread.currentThread().interrupt();
+                }
+            }
+        }.execute();
+    }
+
+    private void bukaDashboard(Model.AdminModel.Akun akun) {
+        if ("kasir".equals(akun.role)) {
+            DashboardKasir next = new DashboardKasir(akun.namaLengkap);
+            next.setSize(this.getSize());
+            next.setLocation(this.getLocation());
+            next.setVisible(true);
+            this.dispose();
+        } else {
+            javax.swing.JOptionPane.showMessageDialog(this,
+                    "Login berhasil, tapi dashboard untuk role '" + akun.role
+                    + "' belum tersedia.", "Info",
+                    javax.swing.JOptionPane.INFORMATION_MESSAGE);
+        }
+    }
+
+    private void resetForm() {
+        inputtxtUsername.setText("");
+        inputtxtPassword.setText("");
+        inputtxtUsername.requestFocus();
     }
 
     /**
@@ -87,6 +144,7 @@ public class FormLogin extends javax.swing.JFrame {
         jButton1.setBackground(new java.awt.Color(255, 255, 255));
         jButton1.setForeground(new java.awt.Color(51, 51, 51));
         jButton1.setText("Login");
+        jButton1.addActionListener(this::jButton1ActionPerformed);
 
         jButton2.setBackground(new java.awt.Color(255, 255, 255));
         jButton2.setForeground(new java.awt.Color(0, 0, 0));
@@ -165,6 +223,11 @@ public class FormLogin extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
+        // TODO add your handling code here:
+        prosesLogin();
+    }//GEN-LAST:event_jButton1ActionPerformed
 
     /**
      * @param args the command line arguments

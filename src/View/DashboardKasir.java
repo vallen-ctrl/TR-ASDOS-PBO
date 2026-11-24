@@ -15,8 +15,25 @@ public class DashboardKasir extends javax.swing.JFrame {
     /**
      * Creates new form DashboardKasir
      */
-    public DashboardKasir() {
+        public DashboardKasir() {
         initComponents();
+        setLocationRelativeTo(null);
+        jButton1.addActionListener(evt -> logout()); // tombol Log Out
+    }
+
+    public DashboardKasir(String namaLengkap) {
+        this();
+        replaceUsername.setText(namaLengkap);
+    }
+
+    private void logout() {
+        int pilih = javax.swing.JOptionPane.showConfirmDialog(this,
+                "Yakin mau keluar?", "Log Out",
+                javax.swing.JOptionPane.YES_NO_OPTION);
+        if (pilih == javax.swing.JOptionPane.YES_OPTION) {
+            new FormLogin().setVisible(true);
+            dispose();
+        }
     }
 
     /**
