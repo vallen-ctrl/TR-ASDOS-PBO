@@ -27,42 +27,114 @@ public class KelolaTransaksi extends javax.swing.JFrame {
     
     private static final java.util.logging.Logger logger = java.util.logging.Logger.getLogger(KelolaTransaksi.class.getName());
 
-    // ====== DATA IN-MEMORY ======
-private static final Map<String, Transaksi> daftarTransaksi = new HashMap<>();
-private static int counterTransaksi = 1;
-private final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+    private static final String STATUS_DIPESAN = "dipesan";
+    private static final String STATUS_DISEWA  = "disewa";
+    private static final String STATUS_SELESAI = "selesai";
+    private static final String STATUS_BATAL   = "batal";
 
-// Model data transaksi
-private static class Transaksi {
-    String kode, nama, jenis, kendaraan, kondisiAwal, kondisiKembali, deskripsiKerusakan, status;
-    Date tglSewa, tglKembali, tglAmbil, tglDikembalikan;
-    boolean terlambat;
-    double totalHarga;
-}
-// ============================
+    private static final String JENIS_MOBIL = "mobil";
+    private static final String JENIS_MOTOR = "motor";
+
+    private static final double PERSEN_DENDA_TELAT = 0.10;
+
+    private static final double BIAYA_RUSAK_DEFAULT = 500_000.0;
+
+    private static final String KONDISI_AMBIL_PLACEHOLDER = "-";
+
+    // ====== DATA IN-MEMORY ======
+    private static final Map<String, Transaksi> daftarTransaksi = new HashMap<>();
+    private static int counterTransaksi = 1;
+    private final SimpleDateFormat sdf = new SimpleDateFormat("dd-MM-yyyy");
+
     /**
-     * Creates new form KelolaTransaksi
+     * Model data transaksi — dipetakan 1:1 ke kolom SQL.
+     * Catatan pemetaan:
+     *   kode            → transaksi.kode_transaksi
+     *   nama            → pelanggan.nama (via transaksi.id_pelanggan)
+     *   jenis           → kendaraan.jenis
+     *   kendaraan       → kendaraan.plat_nomor + merek + model (label gabungan)
+     *   kondisiAmbil    → transaksi.kondisi_ambil  (NOT NULL, diisi placeholder saat booking)
+     *   kondisiKembali  → pengembalian.kondisi_kembali
+     *   deskripsiKerusakan → kerusakan.deskripsi
+     *   status          → transaksi.status ('dipesan'/'disewa'/'selesai'/'batal')
+     *   tglSewa         → transaksi.tgl_sewa
+     *   tglKembali      → transaksi.tgl_kembali_rencana
+     *   tglAmbil        → transaksi.tgl_ambil       (NOT NULL, diisi tglSewa saat booking)
+     *   tglDikembalikan → pengembalian.tgl_kembali_aktual
+     *   hargaSewaPerHari→ transaksi.harga_sewa_per_hari
+     *   jumlahHari      → transaksi.jumlah_hari
+     *   totalSewa       → transaksi.total_sewa      (estimasi saat booking)
+     *   hariTelat       → pengembalian.hari_telat
+     *   biayaTelat      → pengembalian.biaya_telat
+     *   totalBiayaRusak → pengembalian.total_biaya_rusak
+     *   totalBayar      → pengembalian.total_bayar
+     *   idKasir         → transaksi.id_kasir & pengembalian.id_kasir
      */
+    
+    private static class Transaksi {
+        
+        String kode;
+        String nama;
+        String jenis;       
+        String kendaraan;
+
+         String kondisiAmbil; 
+        String kondisiKembali;
+        String deskripsiKerusakan;
+
+        String status;
+
+        Date tglSewa;
+        Date tglKembali;       
+        Date tglAmbil;
+        Date tglDikembalikan;  
+
+        double hargaSewaPerHari;
+        int    jumlahHari;
+        double totalSewa;
+        int    hariTelat;
+        double biayaTelat;
+        double totalBiayaRusak;
+        double totalBayar;
+
+        int idPelanggan = 1;
+        int idKendaraan = 1;
+        int idKasir     = 1;    
+    }
+
     public KelolaTransaksi() {
         initComponents();
         setupForm(); 
+        refreshTabel();
     }
-    // ====== INIT FORM (date spinner + auto-hitung) ======
-private void setupForm() {
+    
+    private void setupForm() {
     Date today = new Date();
     setupDateSpinner(txtTglSewa, today);
     setupDateSpinner(txtTglKembali, today);
     setupDateSpinner(txtTglAmbil, today);
     setupDateSpinner(txtTglbalik, today);
-    setupDateSpinner(spnTglDikembalikan, today);
+    setupDateSpinner(spnTglKembaliAktual, today);
+    
+    txtJenis.setModel(new javax.swing.DefaultComboBoxModel<>(
+                new String[]{ JENIS_MOBIL, JENIS_MOTOR }));
+    
+     txtJenis.addActionListener(new java.awt.event.ActionListener() {
+        public void actionPerformed(java.awt.event.ActionEvent evt) {
+            filterKendaraanBerdasarkanJenis();
+        }
+    });
 
-    // Auto-hitung total di tab Pengembalian
-    spnTglDikembalikan.addChangeListener(e -> hitungTotalPengembalian());
+    // otomatis hitung total di tab Pengembalian
+    spnTglKembaliAktual.addChangeListener(e -> hitungTotalPengembalian());
     CbxKeterlambatan.addItemListener(e -> hitungTotalPengembalian());
     cmbKondisiKembali.addItemListener(e -> hitungTotalPengembalian());
     txtKodetransaksi.addFocusListener(new java.awt.event.FocusAdapter() {
-        @Override public void focusLost(java.awt.event.FocusEvent e) { hitungTotalPengembalian(); }
+        @Override public void focusLost(java.awt.event.FocusEvent e) { 
+            hitungTotalPengembalian(); }
     });
+    
+    filterKendaraanBerdasarkanJenis();
 }
 
 private void setupDateSpinner(JSpinner sp, Date init) {
@@ -70,7 +142,25 @@ private void setupDateSpinner(JSpinner sp, Date init) {
     sp.setEditor(new JSpinner.DateEditor(sp, "dd-MM-yyyy"));
 }
 
-// ====== HELPER ======
+private void filterKendaraanBerdasarkanJenis() {
+    String jenis = txtJenis.getSelectedItem().toString();
+    
+    txtKendaraanSewa.removeAllItems();
+
+    if (jenis.equalsIgnoreCase(JENIS_MOBIL)) { 
+        txtKendaraanSewa.addItem("A 01 Toyota Avanza");
+        txtKendaraanSewa.addItem("I 03 Toyota Innova");
+        txtKendaraanSewa.addItem("C 04 Honda Civic");
+        txtKendaraanSewa.addItem("B 20 Honda Brio");
+    } 
+    else if (jenis.equalsIgnoreCase(JENIS_MOTOR)) { 
+        txtKendaraanSewa.addItem("S 12 Honda Supra X");
+        txtKendaraanSewa.addItem("M 32 Yamaha Mio");
+        txtKendaraanSewa.addItem("Z 56 Kawasaki Ninja ZX25rr");
+        txtKendaraanSewa.addItem("V 13 Tawon Vespa");
+    }
+}
+
 private long hariAntara(Date a, Date b) {
     java.util.Calendar c1 = java.util.Calendar.getInstance();
     c1.setTime(a);
@@ -113,66 +203,98 @@ private void tampilkanStruk(String judul, String isi) {
 
 private void hitungTotalPengembalian() {
     String kode = txtKodetransaksi.getText().trim();
-    if (kode.isEmpty()) { txtHargaTotal.setText(""); return; }
+    if (kode.isEmpty()) { 
+        txtHargaTotal.setText(""); 
+        return;
+    }
     Transaksi t = daftarTransaksi.get(kode);
-    if (t == null) { txtHargaTotal.setText("Kode tidak ditemukan"); return; }
-    if (!"DIAMBIL".equals(t.status)) { txtHargaTotal.setText("-"); return; }
+    if (t == null) { 
+        txtHargaTotal.setText("Kode tidak ditemukan"); 
+        return; 
+    }
+    if (!STATUS_DISEWA.equals(t.status)) {
+        txtHargaTotal.setText("-");
+        return;
+    }
 
-    Date tglKembali = (Date) spnTglDikembalikan.getValue();
-    long hari = hariAntara(t.tglSewa, tglKembali);
+    Date tglAktual = (Date) spnTglKembaliAktual.getValue(); 
+    
+    long hari = hariAntara(t.tglSewa, tglAktual);
     if (hari < 1) hari = 1;
-    double total = getHargaPerHari(t.kendaraan) * hari;
+    double biayaSewa = t.hargaSewaPerHari * hari;
+        
+     long late = hariAntara(t.tglKembali, tglAktual);
+        double biayaTelat = 0;
+        if (late > 0 && CbxKeterlambatan.isSelected()) {
+            biayaTelat = t.hargaSewaPerHari * late * PERSEN_DENDA_TELAT;
+        }
 
-    long late = hariAntara(t.tglKembali, tglKembali);
-    if (late > 0 && CbxKeterlambatan.isSelected()) {
-        total += getHargaPerHari(t.kendaraan) * late * 0.5;
+        double biayaRusak = 0;
+        if (cmbKondisiKembali.getSelectedItem().toString().contains("Rusak")) {
+            biayaRusak = BIAYA_RUSAK_DEFAULT;
+        }
+
+        txtHargaTotal.setText(formatRupiah(biayaSewa + biayaTelat + biayaRusak));
     }
-    if (cmbKondisiKembali.getSelectedItem().toString().contains("Rusak")) {
-        total += 500_000;
-    }
-    txtHargaTotal.setText(formatRupiah(total));
-}
 
     private void refreshTabel() {
-        // 1. Buat model tabel baru yang bersih (mengabaikan settingan error dari NetBeans)
-        DefaultTableModel m = new DefaultTableModel(
-            new Object[][]{},
-            new String[]{"No", "Nama Pelanggan", "Kode Transaksi", "Kendaraan", "Tgl Sewa", "Tgl Kembali", "Status", "Total Harga"}
-        ) {
-            @Override
-            public Class<?> getColumnClass(int columnIndex) {
-                if (columnIndex == 0) return Integer.class; // Kolom No
-                if (columnIndex == 7) return Double.class;  // Kolom Total Harga
-                return String.class; // Paksa semua kolom lain jadi String (teks)
-            }
-            @Override
-            public boolean isCellEditable(int rowIndex, int columnIndex) {
-                return false; // Supaya tabel tidak bisa diedit manual oleh user
-            }
-        };
-        
-        // 2. Pasang model baru ini ke tabel TabRiwayat kamu
-        TabRiwayat.setModel(m); 
-
-        // 3. Isi datanya dari daftarTransaksi
-        List<String> keys = new ArrayList<>(daftarTransaksi.keySet());
-        Collections.sort(keys);
-        int no = 1;
-        for (String k : keys) {
-            Transaksi t = daftarTransaksi.get(k);
-            m.addRow(new Object[]{
-                no++, 
-                t.nama, 
-                t.kode, 
-                t.kendaraan, 
-                sdf.format(t.tglSewa), 
-                t.tglKembali == null ? "-" : sdf.format(t.tglKembali), 
-                t.status, 
-                t.totalHarga
-            });
+    // 1. Buat model tabel yang dipaksa menggunakan tipe data String (kecuali No)
+    DefaultTableModel m = new DefaultTableModel(
+        new Object[][]{},
+        new String[]{"No", "Kode Transaksi", "Pelanggan", "Kendaraan", "Tgl Sewa", "Tgl Kembali", "Status", "Total Harga"}
+    ) {
+        @Override
+        public Class<?> getColumnClass(int columnIndex) {
+            if (columnIndex == 0) return Integer.class;
+            // Paksa semua kolom selain No menjadi String agar tidak bentrok dengan Boolean bawaan NetBeans
+            return String.class; 
         }
-    }
+        @Override
+        public boolean isCellEditable(int rowIndex, int columnIndex) {
+            return false; 
+        }
+    };
     
+    TabRiwayat.setModel(m); 
+
+    // 3. Isi datanya
+    List<String> keys = new ArrayList<>(daftarTransaksi.keySet());
+    Collections.sort(keys);
+    int no = 1;
+    for (String k : keys) {
+        Transaksi t = daftarTransaksi.get(k);
+        
+        String tglSewaStr = (t.tglSewa != null) ? sdf.format(t.tglSewa) : "-";
+        
+        String tglKembaliStr = "-";
+        if (t.tglDikembalikan != null) {
+            tglKembaliStr = sdf.format(t.tglDikembalikan);
+        } else if (t.tglKembali != null) {
+            tglKembaliStr = sdf.format(t.tglKembali);
+        }
+
+        double totalTampil = STATUS_SELESAI.equals(t.status) ? t.totalBayar : t.totalSewa;
+        
+        String totalStr = formatRupiah(totalTampil);
+
+        // Tambahkan status tambahan jika telat
+        String statusTampil = t.status;
+        if (STATUS_SELESAI.equals(t.status) && t.hariTelat > 0) {
+            statusTampil = "selesai (Telat " + t.hariTelat + "h)";
+        }
+
+        m.addRow(new Object[]{
+            no++,
+            t.kode,
+            t.nama,
+            t.kendaraan,
+            tglSewaStr,
+            tglKembaliStr,
+            statusTampil,
+            totalStr 
+        });
+    }
+}
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -182,9 +304,7 @@ private void hitungTotalPengembalian() {
     // <editor-fold defaultstate="collapsed" desc="Generated Code">//GEN-BEGIN:initComponents
     private void initComponents() {
 
-        jPanel6 = new javax.swing.JPanel();
-        jLabel18 = new javax.swing.JLabel();
-        btnLogout = new javax.swing.JButton();
+        jPanel10 = new javax.swing.JPanel();
         jTabbedPane1 = new javax.swing.JTabbedPane();
         jPanel2 = new javax.swing.JPanel();
         jPanel5 = new javax.swing.JPanel();
@@ -219,7 +339,7 @@ private void hitungTotalPengembalian() {
         jLabel10 = new javax.swing.JLabel();
         txtKodetransaksi = new javax.swing.JTextField();
         jLabel11 = new javax.swing.JLabel();
-        spnTglDikembalikan = new javax.swing.JSpinner();
+        spnTglKembaliAktual = new javax.swing.JSpinner();
         jPanel4 = new javax.swing.JPanel();
         CbxKeterlambatan = new javax.swing.JCheckBox();
         jLabel12 = new javax.swing.JLabel();
@@ -235,42 +355,14 @@ private void hitungTotalPengembalian() {
         jLabel19 = new javax.swing.JLabel();
         jScrollPane1 = new javax.swing.JScrollPane();
         TabRiwayat = new javax.swing.JTable();
-        jPanel10 = new javax.swing.JPanel();
+        btnBatalBookingRiwayat = new javax.swing.JButton();
+        jPanel6 = new javax.swing.JPanel();
+        jLabel18 = new javax.swing.JLabel();
+        btnLogout = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jPanel6.setBackground(new java.awt.Color(0, 102, 51));
-
-        jLabel18.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
-        jLabel18.setForeground(new java.awt.Color(255, 255, 255));
-        jLabel18.setText("RENTAL GAS");
-
-        btnLogout.setBackground(new java.awt.Color(255, 255, 255));
-        btnLogout.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
-        btnLogout.setForeground(new java.awt.Color(0, 102, 51));
-        btnLogout.setText("LOG OUT");
-        btnLogout.addActionListener(this::btnLogoutActionPerformed);
-
-        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
-        jPanel6.setLayout(jPanel6Layout);
-        jPanel6Layout.setHorizontalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel6Layout.createSequentialGroup()
-                .addGap(22, 22, 22)
-                .addComponent(jLabel18)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 750, Short.MAX_VALUE)
-                .addComponent(btnLogout)
-                .addGap(16, 16, 16))
-        );
-        jPanel6Layout.setVerticalGroup(
-            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                    .addComponent(jLabel18)
-                    .addComponent(btnLogout))
-                .addGap(0, 0, 0))
-        );
+        jPanel10.setBackground(new java.awt.Color(204, 255, 204));
 
         jTabbedPane1.setBackground(new java.awt.Color(217, 255, 204));
         jTabbedPane1.setForeground(new java.awt.Color(0, 102, 51));
@@ -410,7 +502,7 @@ private void hitungTotalPengembalian() {
         jPanel2Layout.setHorizontalGroup(
             jPanel2Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel2Layout.createSequentialGroup()
-                .addContainerGap(37, Short.MAX_VALUE)
+                .addContainerGap(52, Short.MAX_VALUE)
                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(29, 29, 29))
         );
@@ -419,7 +511,7 @@ private void hitungTotalPengembalian() {
             .addGroup(jPanel2Layout.createSequentialGroup()
                 .addGap(18, 18, 18)
                 .addComponent(jPanel5, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(45, Short.MAX_VALUE))
+                .addContainerGap(46, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Booking", jPanel2);
@@ -530,14 +622,14 @@ private void hitungTotalPengembalian() {
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(33, 33, 33)
                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(33, Short.MAX_VALUE))
+                .addContainerGap(48, Short.MAX_VALUE))
         );
         jPanel1Layout.setVerticalGroup(
             jPanel1Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel1Layout.createSequentialGroup()
                 .addGap(17, 17, 17)
                 .addComponent(jPanel8, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(35, Short.MAX_VALUE))
+                .addContainerGap(36, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Pengambilan", jPanel1);
@@ -560,7 +652,7 @@ private void hitungTotalPengembalian() {
         jLabel11.setForeground(new java.awt.Color(0, 0, 0));
         jLabel11.setText("Tanggal Dikembalikan");
 
-        spnTglDikembalikan.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
+        spnTglKembaliAktual.setFont(new java.awt.Font("Segoe UI", 0, 14)); // NOI18N
 
         jPanel4.setBackground(new java.awt.Color(255, 215, 165));
 
@@ -623,42 +715,48 @@ private void hitungTotalPengembalian() {
         jPanel9.setLayout(jPanel9Layout);
         jPanel9Layout.setHorizontalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGroup(jPanel9Layout.createSequentialGroup()
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
                 .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
                 .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
-                        .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                            .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                                .addComponent(txtDeskripsiKerusakan)
-                                .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                                .addComponent(txtKodetransaksi)
-                                .addComponent(spnTglDikembalikan)
-                                .addComponent(cmbKondisiKembali, javax.swing.GroupLayout.PREFERRED_SIZE, 807, javax.swing.GroupLayout.PREFERRED_SIZE)
-                                .addComponent(jLabel13)
-                                .addComponent(jLabel12)
-                                .addComponent(jLabel11)
-                                .addComponent(jLabel10))
-                            .addComponent(jLabel17)
-                            .addComponent(jLabel16)
-                            .addComponent(txtHargaTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE))
-                        .addGap(210, 210, 210))
-                    .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel9Layout.createSequentialGroup()
-                        .addComponent(btnProsesPengembalian)
-                        .addGap(68, 68, 68))))
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addGap(6, 6, 6)
+                        .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                            .addGroup(jPanel9Layout.createSequentialGroup()
+                                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                                    .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
+                                        .addComponent(txtDeskripsiKerusakan)
+                                        .addComponent(jPanel4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                        .addComponent(txtKodetransaksi)
+                                        .addComponent(spnTglKembaliAktual)
+                                        .addComponent(cmbKondisiKembali, javax.swing.GroupLayout.PREFERRED_SIZE, 807, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                        .addComponent(jLabel13)
+                                        .addComponent(jLabel12)
+                                        .addComponent(jLabel11))
+                                    .addComponent(jLabel17)
+                                    .addComponent(jLabel16))
+                                .addGap(204, 204, 204))
+                            .addGroup(jPanel9Layout.createSequentialGroup()
+                                .addComponent(txtHargaTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 244, javax.swing.GroupLayout.PREFERRED_SIZE)
+                                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                                .addComponent(btnProsesPengembalian)
+                                .addGap(98, 98, 98))))
+                    .addGroup(jPanel9Layout.createSequentialGroup()
+                        .addComponent(jLabel10)
+                        .addGap(72, 72, 72))))
         );
         jPanel9Layout.setVerticalGroup(
             jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel9Layout.createSequentialGroup()
                 .addGap(18, 18, 18)
                 .addComponent(jLabel10)
-                .addGap(28, 28, 28)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                 .addComponent(jLabel16)
                 .addGap(3, 3, 3)
                 .addComponent(txtKodetransaksi, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
                 .addComponent(jLabel11)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(spnTglDikembalikan, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addComponent(spnTglKembaliAktual, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(23, 23, 23)
                 .addComponent(jPanel4, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(18, 18, 18)
@@ -672,10 +770,10 @@ private void hitungTotalPengembalian() {
                 .addGap(18, 18, 18)
                 .addComponent(jLabel17)
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(txtHargaTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                .addComponent(btnProsesPengembalian)
-                .addGap(14, 14, 14))
+                .addGroup(jPanel9Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(txtHargaTotal, javax.swing.GroupLayout.PREFERRED_SIZE, 35, javax.swing.GroupLayout.PREFERRED_SIZE)
+                    .addComponent(btnProsesPengembalian))
+                .addContainerGap(37, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel3Layout = new javax.swing.GroupLayout(jPanel3);
@@ -683,7 +781,7 @@ private void hitungTotalPengembalian() {
         jPanel3Layout.setHorizontalGroup(
             jPanel3Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel3Layout.createSequentialGroup()
-                .addContainerGap(36, Short.MAX_VALUE)
+                .addContainerGap(51, Short.MAX_VALUE)
                 .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, 982, javax.swing.GroupLayout.PREFERRED_SIZE)
                 .addGap(23, 23, 23))
         );
@@ -692,7 +790,7 @@ private void hitungTotalPengembalian() {
             .addGroup(jPanel3Layout.createSequentialGroup()
                 .addGap(21, 21, 21)
                 .addComponent(jPanel9, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addContainerGap(46, Short.MAX_VALUE))
         );
 
         jTabbedPane1.addTab("Pengembalian", jPanel3);
@@ -729,14 +827,23 @@ private void hitungTotalPengembalian() {
         });
         jScrollPane1.setViewportView(TabRiwayat);
 
+        btnBatalBookingRiwayat.setBackground(new java.awt.Color(204, 0, 51));
+        btnBatalBookingRiwayat.setFont(new java.awt.Font("Segoe UI", 1, 14)); // NOI18N
+        btnBatalBookingRiwayat.setForeground(new java.awt.Color(255, 255, 255));
+        btnBatalBookingRiwayat.setText("Batalkan Booking");
+        btnBatalBookingRiwayat.addActionListener(this::btnBatalBookingRiwayatActionPerformed);
+
         javax.swing.GroupLayout jPanel11Layout = new javax.swing.GroupLayout(jPanel11);
         jPanel11.setLayout(jPanel11Layout);
         jPanel11Layout.setHorizontalGroup(
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel11Layout.createSequentialGroup()
                 .addGap(26, 26, 26)
-                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING)
+                    .addGroup(jPanel11Layout.createSequentialGroup()
+                        .addComponent(jLabel19, javax.swing.GroupLayout.PREFERRED_SIZE, 228, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addGap(571, 571, 571)
+                        .addComponent(btnBatalBookingRiwayat))
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 930, javax.swing.GroupLayout.PREFERRED_SIZE))
                 .addContainerGap(26, Short.MAX_VALUE))
         );
@@ -744,10 +851,12 @@ private void hitungTotalPengembalian() {
             jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(jPanel11Layout.createSequentialGroup()
                 .addGap(25, 25, 25)
-                .addComponent(jLabel19)
+                .addGroup(jPanel11Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+                    .addComponent(jLabel19)
+                    .addComponent(btnBatalBookingRiwayat))
                 .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, 462, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(16, Short.MAX_VALUE))
+                .addComponent(jScrollPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(29, Short.MAX_VALUE))
         );
 
         javax.swing.GroupLayout jPanel7Layout = new javax.swing.GroupLayout(jPanel7);
@@ -764,22 +873,59 @@ private void hitungTotalPengembalian() {
             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel7Layout.createSequentialGroup()
                 .addContainerGap(21, Short.MAX_VALUE)
                 .addComponent(jPanel11, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(15, 15, 15))
+                .addGap(38, 38, 38))
         );
 
         jTabbedPane1.addTab("Riwayat", jPanel7);
-
-        jPanel10.setBackground(new java.awt.Color(204, 255, 204));
 
         javax.swing.GroupLayout jPanel10Layout = new javax.swing.GroupLayout(jPanel10);
         jPanel10.setLayout(jPanel10Layout);
         jPanel10Layout.setHorizontalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 1039, Short.MAX_VALUE)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
         );
         jPanel10Layout.setVerticalGroup(
             jPanel10Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-            .addGap(0, 572, Short.MAX_VALUE)
+            .addGroup(jPanel10Layout.createSequentialGroup()
+                .addContainerGap()
+                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+        );
+
+        jPanel6.setBackground(new java.awt.Color(0, 102, 51));
+
+        jLabel18.setFont(new java.awt.Font("Segoe UI", 1, 24)); // NOI18N
+        jLabel18.setForeground(new java.awt.Color(255, 255, 255));
+        jLabel18.setText("RENTAL GAS");
+
+        btnLogout.setBackground(new java.awt.Color(255, 255, 255));
+        btnLogout.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
+        btnLogout.setForeground(new java.awt.Color(0, 102, 51));
+        btnLogout.setText("LOG OUT");
+        btnLogout.addActionListener(this::btnLogoutActionPerformed);
+
+        javax.swing.GroupLayout jPanel6Layout = new javax.swing.GroupLayout(jPanel6);
+        jPanel6.setLayout(jPanel6Layout);
+        jPanel6Layout.setHorizontalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(jPanel6Layout.createSequentialGroup()
+                .addGap(22, 22, 22)
+                .addComponent(jLabel18)
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                .addComponent(btnLogout)
+                .addGap(16, 16, 16))
+        );
+        jPanel6Layout.setVerticalGroup(
+            jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
+            .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, jPanel6Layout.createSequentialGroup()
+                .addContainerGap(12, Short.MAX_VALUE)
+                .addGroup(jPanel6Layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
+                    .addComponent(jLabel18)
+                    .addComponent(btnLogout))
+                .addGap(0, 0, 0))
         );
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
@@ -787,30 +933,19 @@ private void hitungTotalPengembalian() {
         layout.setHorizontalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
-                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                    .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE))
-                .addContainerGap(javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(0, 0, Short.MAX_VALUE)
-                    .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(0, 0, Short.MAX_VALUE)))
+                .addGap(0, 0, Short.MAX_VALUE)
+                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
+                    .addComponent(jPanel6, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                    .addComponent(jPanel10, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                .addGap(0, 0, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
             layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
             .addGroup(layout.createSequentialGroup()
-                .addContainerGap()
                 .addComponent(jPanel6, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addGap(0, 0, 0)
-                .addComponent(jTabbedPane1, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                .addContainerGap(17, Short.MAX_VALUE))
-            .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                .addGroup(layout.createSequentialGroup()
-                    .addGap(0, 0, Short.MAX_VALUE)
-                    .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
-                    .addGap(0, 0, Short.MAX_VALUE)))
+                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
+                .addComponent(jPanel10, javax.swing.GroupLayout.PREFERRED_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.PREFERRED_SIZE)
+                .addGap(0, 0, Short.MAX_VALUE))
         );
 
         pack();
@@ -827,34 +962,41 @@ private void hitungTotalPengembalian() {
 
     private void btnProsesBookingActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProsesBookingActionPerformed
         // TODO add your handling code here:
-        String nama      = txtNama.getSelectedItem().toString();
-        String jenis     = txtJenis.getSelectedItem().toString();
+         String nama      = txtNama.getSelectedItem().toString();
+        String jenis     = txtJenis.getSelectedItem().toString();     // 'mobil' / 'motor'
         String kendaraan = txtKendaraanSewa.getSelectedItem().toString();
         Date tglSewa     = (Date) txtTglSewa.getValue();
         Date tglKembali  = (Date) txtTglKembali.getValue();
 
         if (hariAntara(tglSewa, tglKembali) <= 0) {
             JOptionPane.showMessageDialog(this,
-                "Tanggal kembali harus setelah tanggal sewa!", "Validasi",
-                JOptionPane.WARNING_MESSAGE);
+                "Tanggal kembali harus setelah tanggal sewa!",
+                "Validasi", JOptionPane.WARNING_MESSAGE);
             return;
         }
 
         String kode = String.format("M%02d", counterTransaksi++);
-        Transaksi t = new Transaksi();
-        t.kode = kode;
-        t.nama = nama;
-        t.jenis = jenis;
-        t.kendaraan = kendaraan;
-        t.tglSewa = tglSewa;
-        t.tglKembali = tglKembali;
-        t.status = "BOOKING";
-        t.totalHarga = 0;
-        daftarTransaksi.put(kode, t);
-
+        double harga = getHargaPerHari(kendaraan);
         long hari = hariAntara(tglSewa, tglKembali);
-        double estimasi = getHargaPerHari(kendaraan) * hari;
 
+        Transaksi t = new Transaksi();
+        t.kode             = kode;
+        t.nama             = nama;
+        t.jenis            = jenis;
+        t.kendaraan        = kendaraan;
+        t.tglSewa          = tglSewa;
+        t.tglKembali       = tglKembali;
+        t.hargaSewaPerHari = harga;
+        t.jumlahHari       = (int) hari;
+        t.totalSewa        = harga * hari;
+        t.status           = STATUS_DIPESAN;     // ✅ sesuai ENUM SQL
+
+        //untuk mengupdate saat pengambilan)
+        t.tglAmbil = tglSewa;
+        // transaksi.kondisi_ambil NOT NULL → isi placeholder
+        t.kondisiAmbil = KONDISI_AMBIL_PLACEHOLDER;
+
+        daftarTransaksi.put(kode, t);
         refreshTabel();
 
         String struk =
@@ -866,10 +1008,11 @@ private void hitungTotalPengembalian() {
             "Tgl Sewa       : " + sdf.format(tglSewa) + "\n" +
             "Tgl Kembali    : " + sdf.format(tglKembali) + "\n" +
             "Lama Sewa      : " + hari + " hari\n" +
-            "Estimasi Biaya : " + formatRupiah(estimasi) + "\n" +
-            "Status         : BOOKING\n" +
+            "Estimasi Biaya : " + formatRupiah(t.totalSewa) + "\n" +
+            "Status         : " + t.status + "\n" +
             "=================================";
         tampilkanStruk("Struk Booking", struk);
+    
     }//GEN-LAST:event_btnProsesBookingActionPerformed
 
     private void txtKodeTransaksiActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtKodeTransaksiActionPerformed
@@ -895,8 +1038,9 @@ private void hitungTotalPengembalian() {
             JOptionPane.showMessageDialog(this, "Kode transaksi tidak ditemukan!");
             return;
         }
-        if (!"BOOKING".equals(t.status)) {
-            JOptionPane.showMessageDialog(this, "Transaksi bukan status BOOKING!");
+        
+        if (!STATUS_DIPESAN.equals(t.status)) {
+            JOptionPane.showMessageDialog(this, "Transaksi bukan berstatus 'dipesan'!");
             return;
         }
         String kondisi = txtKondisiAwal.getText().trim();
@@ -904,10 +1048,12 @@ private void hitungTotalPengembalian() {
             JOptionPane.showMessageDialog(this, "Kondisi awal wajib diisi!");
             return;
         }
-        t.tglAmbil    = (Date) txtTglAmbil.getValue();
-        t.tglKembali  = (Date) txtTglbalik.getValue();
-        t.kondisiAwal = kondisi;
-        t.status      = "DIAMBIL";
+
+        t.tglAmbil      = (Date) txtTglAmbil.getValue();
+        t.tglKembali    = (Date) txtTglbalik.getValue();
+        t.tglSewa       = (Date) txtTglAmbil.getValue();
+        t.kondisiAmbil  = kondisi;
+        t.status        = STATUS_DISEWA;          
         refreshTabel();
 
         String struk =
@@ -917,69 +1063,90 @@ private void hitungTotalPengembalian() {
             "Kendaraan      : " + t.kendaraan + "\n" +
             "Tgl Diambil    : " + sdf.format(t.tglAmbil) + "\n" +
             "Tgl Kembali    : " + sdf.format(t.tglKembali) + "\n" +
-            "Kondisi Awal   : " + t.kondisiAwal + "\n" +
-            "Status         : DIAMBIL\n" +
+            "Kondisi Awal   : " + t.kondisiAmbil + "\n" +
+            "Status         : " + t.status + "\n" +
             "=============================";
         tampilkanStruk("Bukti Pengambilan", struk);
     }//GEN-LAST:event_btnProsesPengambilanActionPerformed
 
     private void btnProsesPengembalianActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnProsesPengembalianActionPerformed
         // TODO add your handling code here:
-         String kode = txtKodetransaksi.getText().trim();
-        if (kode.isEmpty()) { JOptionPane.showMessageDialog(this, "Masukkan kode transaksi!"); return; }
-        Transaksi t = daftarTransaksi.get(kode);
-        if (t == null) { JOptionPane.showMessageDialog(this, "Kode tidak ditemukan!"); return; }
-        if (!"DIAMBIL".equals(t.status)) {
-            JOptionPane.showMessageDialog(this, "Transaksi belum diambil / sudah dikembalikan!");
-            return;
-        }
+        String kode = txtKodetransaksi.getText().trim();
+    if (kode.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Masukkan kode transaksi!");
+        return;
+    }
+    Transaksi t = daftarTransaksi.get(kode);
+    if (t == null) {
+        JOptionPane.showMessageDialog(this, "Kode tidak ditemukan!");
+        return;
+    }
+    if (!STATUS_DISEWA.equals(t.status)) {
+        JOptionPane.showMessageDialog(this, "Transaksi belum diambil atau sudah dikembalikan!");
+        return;
+    }
 
-        String kondisi    = cmbKondisiKembali.getSelectedItem().toString();
-        String deskripsi  = txtDeskripsiKerusakan.getText().trim();
-        boolean terlambat = CbxKeterlambatan.isSelected();
+    String kondisi    = cmbKondisiKembali.getSelectedItem().toString();
+    String deskripsi  = txtDeskripsiKerusakan.getText().trim();
+    boolean terlambat = CbxKeterlambatan.isSelected();
 
-        if (kondisi.contains("Rusak") && deskripsi.isEmpty()) {
-            JOptionPane.showMessageDialog(this, "Isi deskripsi kerusakan!");
-            return;
-        }
+    if (kondisi.contains("Rusak") && deskripsi.isEmpty()) {
+        JOptionPane.showMessageDialog(this, "Isi deskripsi kerusakan!");
+        return;
+    }
 
-        Date tglKembali = (Date) spnTglDikembalikan.getValue();
-        t.tglDikembalikan    = tglKembali;
-        t.kondisiKembali     = kondisi;
-        t.deskripsiKerusakan = deskripsi;
-        t.terlambat          = terlambat;
+    Date tglAktual = (Date) spnTglKembaliAktual.getValue();
 
-        long hari = hariAntara(t.tglSewa, tglKembali);
-        if (hari < 1) hari = 1;
-        double biayaSewa = getHargaPerHari(t.kendaraan) * hari;
+    long hari = hariAntara(t.tglSewa, tglAktual);
+    if (hari < 1) hari = 1;
 
-        long late = hariAntara(t.tglKembali, tglKembali);
-        double denda = (late > 0 && terlambat) ? getHargaPerHari(t.kendaraan) * late * 0.5 : 0;
-        double biayaRusak = kondisi.contains("Rusak") ? 500_000 : 0;
+    long late = hariAntara(t.tglKembali, tglAktual);
+    if (late < 0) late = 0;
+    int    hariTelat  = (int) late;
+    double biayaTelat = 0;
+    if (terlambat && hariTelat > 0) {
+        biayaTelat = t.hargaSewaPerHari * hariTelat * PERSEN_DENDA_TELAT;
+    }
 
-        t.totalHarga = biayaSewa + denda + biayaRusak;
-        t.status     = "DIKEMBALIKAN";
-        txtHargaTotal.setText(formatRupiah(t.totalHarga));
-        refreshTabel();
+    double totalBiayaRusak = kondisi.contains("Rusak") ? BIAYA_RUSAK_DEFAULT : 0;
 
-        String struk =
-            "===== STRUK PENGEMBALIAN =====\n" +
-            "Kode Transaksi    : " + t.kode + "\n" +
-            "Nama              : " + t.nama + "\n" +
-            "Kendaraan         : " + t.kendaraan + "\n" +
-            "Tgl Sewa          : " + sdf.format(t.tglSewa) + "\n" +
-            "Tgl Harus Kembali : " + sdf.format(t.tglKembali) + "\n" +
-            "Tgl Dikembalikan  : " + sdf.format(tglKembali) + "\n" +
-            "Lama Sewa         : " + hari + " hari\n" +
-            "Kondisi Kembali   : " + kondisi + "\n" +
-            (deskripsi.isEmpty() ? "" : "Kerusakan         : " + deskripsi + "\n") +
-            (denda > 0 ? "Denda Terlambat   : " + formatRupiah(denda) + "\n" : "") +
-            (biayaRusak > 0 ? "Biaya Kerusakan   : " + formatRupiah(biayaRusak) + "\n" : "") +
-            "---------------------------------\n" +
-            "TOTAL BAYAR       : " + formatRupiah(t.totalHarga) + "\n" +
-            "Status            : DIKEMBALIKAN\n" +
-            "===============================";
-        tampilkanStruk("Struk Pengembalian", struk);
+    t.tglDikembalikan = tglAktual; 
+    t.kondisiKembali  = kondisi;
+    t.deskripsiKerusakan = deskripsi;
+    t.hariTelat       = hariTelat;
+    t.biayaTelat      = biayaTelat;
+    t.totalBiayaRusak = totalBiayaRusak;
+    t.totalBayar      = (t.hargaSewaPerHari * hari) + biayaTelat + totalBiayaRusak;
+    t.status          = STATUS_SELESAI;
+
+    txtHargaTotal.setText(formatRupiah(t.totalBayar));
+    refreshTabel();
+
+    StringBuilder struk = new StringBuilder();
+    struk.append("===== STRUK PENGEMBALIAN =====\n")
+         .append("Kode Transaksi    : ").append(t.kode).append("\n")
+         .append("Nama              : ").append(t.nama).append("\n")
+         .append("Kendaraan         : ").append(t.kendaraan).append("\n")
+         .append("Tgl Sewa          : ").append(sdf.format(t.tglSewa)).append("\n")
+         .append("Tgl Harus Kembali : ").append(sdf.format(t.tglKembali)).append("\n")
+         .append("Tgl Dikembalikan  : ").append(sdf.format(tglAktual)).append("\n") // Pakai tglAktual
+         .append("Lama Sewa         : ").append(hari).append(" hari\n")
+         .append("Kondisi Kembali   : ").append(kondisi).append("\n");
+    if (!deskripsi.isEmpty()) {
+        struk.append("Kerusakan         : ").append(deskripsi).append("\n");
+    }
+    if (biayaTelat > 0) {
+        struk.append("Hari Telat        : ").append(hariTelat).append(" hari\n")
+             .append("Denda Terlambat   : ").append(formatRupiah(biayaTelat)).append("\n");
+    }
+    if (totalBiayaRusak > 0) {
+        struk.append("Biaya Kerusakan   : ").append(formatRupiah(totalBiayaRusak)).append("\n");
+    }
+    struk.append("---------------------------------\n")
+         .append("TOTAL BAYAR       : ").append(formatRupiah(t.totalBayar)).append("\n")
+         .append("Status            : ").append(t.status).append("\n")
+         .append("===============================");
+    tampilkanStruk("Struk Pengembalian", struk.toString());
     }//GEN-LAST:event_btnProsesPengembalianActionPerformed
 
     private void txtHargaTotalActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtHargaTotalActionPerformed
@@ -1008,6 +1175,59 @@ private void hitungTotalPengembalian() {
         txtTglAmbil.setValue(new Date());
         txtTglbalik.setValue(new Date());
     }//GEN-LAST:event_jButton1ActionPerformed
+
+    private void btnBatalBookingRiwayatActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnBatalBookingRiwayatActionPerformed
+        // TODO add your handling code here:
+    int selectedRow = TabRiwayat.getSelectedRow();
+    if (selectedRow == -1) {
+        JOptionPane.showMessageDialog(this, 
+            "Pilih data transaksi di tabel terlebih dahulu!", 
+            "Peringatan", JOptionPane.WARNING_MESSAGE);
+        return;
+    }
+
+    // 1. Ambil Kode Transaksi dari kolom ke-1 (indeks 1, karena kolom 0 adalah "No")
+    String kode = TabRiwayat.getValueAt(selectedRow, 1).toString();
+    Transaksi t = daftarTransaksi.get(kode);
+
+    if (t == null) return;
+
+    // 2. Validasi: Hanya status 'dipesan' (BOOKING) yang boleh dibatalkan
+    if (!STATUS_DIPESAN.equals(t.status)) {
+        JOptionPane.showMessageDialog(this, 
+            "Hanya transaksi berstatus 'dipesan' yang bisa dibatalkan!\n" +
+            "Status transaksi ini saat ini: " + t.status.toUpperCase(), 
+            "Gagal Membatalkan", JOptionPane.ERROR_MESSAGE);
+        return;
+    }
+
+    // 3. Tampilkan Konfirmasi
+    int konfirmasi = JOptionPane.showConfirmDialog(this, 
+            "Yakin ingin membatalkan booking " + kode + "?\n" +
+            "Nama: " + t.nama + "\n" +
+            "Kendaraan: " + t.kendaraan, 
+            "Konfirmasi Pembatalan", 
+            JOptionPane.YES_NO_OPTION, JOptionPane.QUESTION_MESSAGE);
+
+    if (konfirmasi == JOptionPane.YES_OPTION) {
+        // 4. Ubah status menjadi 'batal'
+        t.status = STATUS_BATAL;
+        
+        refreshTabel();
+        
+        // 5. Pesan Sukses
+        JOptionPane.showMessageDialog(this, 
+            "Booking dengan kode " + kode + " berhasil dibatalkan.", 
+            "Sukses", JOptionPane.INFORMATION_MESSAGE);
+        
+        // --- CATATAN UNTUK NANTI SAAT SUDAH PAKAI DATABASE ---
+        // Jika nanti sudah tersambung ke MySQL, Anda tinggal memanggil query ini:
+        // String sql = "UPDATE transaksi SET status = 'batal' WHERE kode_transaksi = ?";
+        // PreparedStatement ps = conn.prepareStatement(sql);
+        // ps.setString(1, kode);
+        // ps.executeUpdate();
+    }
+    }//GEN-LAST:event_btnBatalBookingRiwayatActionPerformed
 
     /**
      * @param args the command line arguments
@@ -1038,6 +1258,7 @@ private void hitungTotalPengembalian() {
     private javax.swing.JCheckBox CbxKeterlambatan;
     private javax.swing.JTable TabRiwayat;
     private javax.swing.JToggleButton btnBatalBooking;
+    private javax.swing.JButton btnBatalBookingRiwayat;
     private javax.swing.JButton btnLogout;
     private javax.swing.JToggleButton btnProsesBooking;
     private javax.swing.JButton btnProsesPengambilan;
@@ -1076,7 +1297,7 @@ private void hitungTotalPengembalian() {
     private javax.swing.JPanel jPanel9;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JTabbedPane jTabbedPane1;
-    private javax.swing.JSpinner spnTglDikembalikan;
+    private javax.swing.JSpinner spnTglKembaliAktual;
     private javax.swing.JTextField txtDeskripsiKerusakan;
     private javax.swing.JTextField txtHargaTotal;
     private javax.swing.JComboBox<String> txtJenis;
