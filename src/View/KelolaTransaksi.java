@@ -900,7 +900,7 @@ public class KelolaTransaksi extends javax.swing.JFrame {
             return;
         }
 
-        LocalDate tglSewa = LocalDate.now();
+        LocalDate tglSewa = toLocalDate((Date) txtTglSewa.getValue());
         LocalDate tglKembali = toLocalDate((Date) txtTglKembali.getValue());
         if (tglKembali == null || !tglKembali.isAfter(tglSewa)) {
             tampilkanPeringatan("Tanggal kembali harus setelah tanggal booking/hari ini.");
