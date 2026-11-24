@@ -39,6 +39,22 @@ public abstract class model {
         }
     }
 
+    /**
+     * Mengubah sebuah nilai menjadi literal SQL yang aman.
+     * Tanda kutip di-escape, dan nilai null menjadi NULL tanpa tanda kutip.
+     *
+     * Contoh: {@code esc("O'Brien")} -> {@code 'O''Brien'}
+     *
+     * @param value nilai asli
+     * @return literal SQL siap pakai
+     */
+    protected static String esc(String value) {
+        if (value == null) {
+            return "NULL";
+        }
+        return "'" + value.replace("'", "''") + "'";
+    }
+
     private void buildSql() {
         if (!SQL.isEmpty() && type.isEmpty()) {
             return; // raw query dari setQuery
@@ -52,8 +68,7 @@ public abstract class model {
                 sb.append("INSERT INTO ").append(tabel)
                         .append(" (").append(String.join(",", insCols)).append(") VALUES (");
                 for (int i = 0; i < insVals.length; i++) {
-                    sb.append(i > 0 ? "," : "").append("'")
-                            .append(insVals[i].replace("'", "''")).append("'");
+                    sb.append(i > 0 ? "," : "").append(esc(insVals[i]));
                 }
                 sb.append(")");
                 break;
@@ -149,12 +164,11 @@ public abstract class model {
 
         StringBuilder sb = new StringBuilder();
         for (int i = 0; i < Cols.length; i++) {
-            sb.append(Cols[i])
-                    .append(" = ")
-                    .append("'%s'".formatted(Value[i]))
-                    .append(", ");
+            if (i > 0) {
+                sb.append(", ");
+            }
+            sb.append(Cols[i]).append(" = ").append(esc(Value[i]));
         }
-        sb.deleteCharAt(sb.length()-2);
         this.colum = sb.toString();
         return this;
     }
