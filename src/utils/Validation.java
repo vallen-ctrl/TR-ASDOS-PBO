@@ -41,6 +41,12 @@ public class Validation {
             throw new InputMismatchException("Nomor HP harus diawali 08 atau 62");
         }
     }
+    
+    public void ChekNomor(int hari){
+        if(hari < 0){
+            throw new InputMismatchException("bagian ini tidak boleh dibawah 0");
+        }
+    }
 
     public void chekPanjangAlamat(String Alamat, int maxAlamat) {
         if (Alamat.length() > maxAlamat) {
