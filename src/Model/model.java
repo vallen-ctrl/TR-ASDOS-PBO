@@ -1,7 +1,6 @@
 package Model;
 
 import config.Database;
-import java.sql.*;
 import java.util.ArrayList;
 import java.io.IOException;
 import java.sql.SQLException;
@@ -9,6 +8,7 @@ import java.sql.Statement;
 import java.util.InputMismatchException;
 import java.util.List;
 import utils.Validation;
+import java.sql.ResultSet;
 
 /**
  *
@@ -20,13 +20,17 @@ public abstract class model {
     private String tabel = getClass().getSimpleName();
     private Statement stm;
     private String type = "";
-    private String colum = "*";
     private String[] insCols;
     private String[] insVals;
     private List<String> conditions = new ArrayList<>();
+    private List<String> joins = new ArrayList<>();
     private Integer limit;
     private Integer offset = 0;
     private String SQL = "";
+    
+    public String thisTableName(){
+        return this.tabel;
+    }
     
     public Validation validator;
 
@@ -62,7 +66,9 @@ public abstract class model {
         StringBuilder sb = new StringBuilder();
         switch (type) {
             case "SELECT":
-                sb.append("SELECT ").append(colum).append(" FROM ").append(tabel);
+                sb.append("SELECT ")
+                        .append(insCols != null ? String.join(",", insCols) : "*")
+                        .append(" FROM ").append(tabel);
                 break;
             case "INSERT":
                 sb.append("INSERT INTO ").append(tabel)
@@ -74,7 +80,7 @@ public abstract class model {
                 break;
             case "UPDATE":
                 sb.append("UPDATE ").append(tabel).append(" SET ")
-                        .append(colum);
+                        .append(String.join(", ", insCols));
                 break;
             case "DELETE":
                 sb.append("DELETE FROM ").append(tabel);
@@ -85,6 +91,7 @@ public abstract class model {
         if (!conditions.isEmpty() && (type.equals("SELECT")
                 || type.equals("DELETE")
                 || type.equals("UPDATE"))) {
+            if(!joins.isEmpty()) sb.append(" ").append(String.join(" ", joins));
             sb.append(" WHERE ").append(String.join(" ", conditions));
             if (limit != null && limit > 0) {
 
@@ -101,20 +108,72 @@ public abstract class model {
 
     private void reset() {
         type = "";
-        colum = "*";
         insCols = null;
         insVals = null;
         SQL = "";
         limit = null;
         offset = null;
         conditions.clear();
+        joins.clear();
+    }
+    
+    
+    /**
+     * ini akan membantu membuat left join di sql dengan menambahkan bantuan leftJoin
+     * @param tabel nama tabel yang akan dimasukan 
+     * @param ON bentuk relasi antara kedua tabel misal namaTabel1.id = namaTabel2.namatabel1id
+     * @return retrun this jadi pakai .run() untuk menjalankan
+     */
+    public model leftJoin(String tabel, String ON){
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append(" LEFT JOIN ")
+                .append(tabel.trim())
+                .append(" ON ")
+                .append(ON.trim());
+        this.joins.add(sb.toString());
+        return this;
+    }
+    
+    /**
+     * ini akan membantu membuat right join di sql dengan menambahkan bantuan leftJoin
+     * @param tabel nama tabel yang akan dimasukan 
+     * @param ON bentuk relasi antara kedua tabel misal namaTabel1.id = namaTabel2.namatabel1id
+     * @return retrun this jadi pakai .run() untuk menjalankan
+     */
+    public model rightJoin(String tabel, String ON){
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append(" RIGHT JOIN ")
+                .append(tabel.trim())
+                .append(" ON ")
+                .append(ON.trim());
+        this.joins.add(sb.toString());
+        return this;
+    }
+    
+    /**
+     * ini akan membantu membuat inner join di sql dengan menambahkan bantuan leftJoin
+     * @param tabel nama tabel yang akan dimasukan 
+     * @param ON bentuk relasi antara kedua tabel misal namaTabel1.id = namaTabel2.namatabel1id
+     * @return retrun this jadi pakai .run() untuk menjalankan
+     */
+    public model innerJoin(String tabel, String ON){
+        StringBuilder sb = new StringBuilder();
+        
+        sb.append(" INNER JOIN ")
+                .append(tabel.trim())
+                .append(" ON ")
+                .append(ON.trim());
+        this.joins.add(sb.toString());
+        return this;
     }
 
     public model select(String... Column) {
 
         this.type = "SELECT";
         if (Column.length > 0) {
-            this.colum = String.join(",", Column); // fix: > 0, bukan > 1
+            this.insCols = Column;
         }
         return this;
     }
@@ -127,7 +186,7 @@ public abstract class model {
     }
 
     /**
-     * ini untuk set limit yang akan dipanggil dan di tampilkan
+     * ini untuk set limit dari database yang dipanggil dan di tampilkan
      * @param Limit isi dengan jumlah limit yang akan di tambilkan
      * @return jalankan dengan {@code .run()}
      */
@@ -162,7 +221,7 @@ public abstract class model {
         }
         this.type = "UPDATE";
 
-        StringBuilder sb = new StringBuilder();
+        this.insCols = new String[Cols.length];
         for (int i = 0; i < Cols.length; i++) {
             if (i > 0) {
                 sb.append(", ");
@@ -175,7 +234,7 @@ public abstract class model {
 
     public model updateOnce(String Cols, String Value) {
         this.type = "UPDATE";
-        this.colum = Cols + " = " + Value;
+        this.insCols = new String[]{Cols + " = '" + Value.replace("'", "''") + "'"};
         return this;
     }
 
