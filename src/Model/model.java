@@ -220,15 +220,12 @@ public abstract class model {
             throw new InputMismatchException("Jumlah cols dan values tidak sama");
         }
         this.type = "UPDATE";
-
+           
+        StringBuilder sb = new StringBuilder();
         this.insCols = new String[Cols.length];
         for (int i = 0; i < Cols.length; i++) {
-            if (i > 0) {
-                sb.append(", ");
-            }
-            sb.append(Cols[i]).append(" = ").append(esc(Value[i]));
+            this.insCols[i] = "%s = %s".formatted(Cols[i], esc(Value[i]));
         }
-        this.colum = sb.toString();
         return this;
     }
 
