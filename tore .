@@ -1,0 +1,261 @@
+[1mdiff --git a/src/Controller/TransaksiController.java b/src/Controller/TransaksiController.java[m
+[1mindex 4121c38..2846322 100644[m
+[1m--- a/src/Controller/TransaksiController.java[m
+[1m+++ b/src/Controller/TransaksiController.java[m
+[36m@@ -1,14 +1,14 @@[m
+ package Controller;[m
+ [m
+ import Model.transaksi;[m
+[31m-import Model.transaksi.BookingResult;[m
+[31m-import Model.transaksi.DamageInput;[m
+[31m-import Model.transaksi.KendaraanOption;[m
+[31m-import Model.transaksi.KerusakanData;[m
+[31m-import Model.transaksi.PelangganOption;[m
+[31m-import Model.transaksi.ReturnCalculation;[m
+[31m-import Model.transaksi.ReturnResult;[m
+[31m-import Model.transaksi.TransaksiData;[m
+[32m+[m[32mimport Model.BookingResult;[m[41m[m
+[32m+[m[32mimport Model.DamageInput;[m[41m[m
+[32m+[m[32mimport Model.KendaraanOption;[m[41m[m
+[32m+[m[32mimport Model.KerusakanData;[m[41m[m
+[32m+[m[32mimport Model.PelangganOption;[m[41m[m
+[32m+[m[32mimport Model.ReturnCalculation;[m[41m[m
+[32m+[m[32mimport Model.ReturnResult;[m[41m[m
+[32m+[m[32mimport Model.TransaksiData;[m[41m[m
+ import Model.interfaces.transaksiInterface;[m
+ import java.sql.SQLException;[m
+ import java.time.LocalDate;[m
+[1mdiff --git a/src/Model/transaksi.java b/src/Model/transaksi.java[m
+[1mindex 8e60a67..3b493ff 100644[m
+[1m--- a/src/Model/transaksi.java[m
+[1m+++ b/src/Model/transaksi.java[m
+[36m@@ -19,190 +19,7 @@[m [mpublic class transaksi extends model {[m
+     [m
+ [m
+     private static final BigDecimal SERATUS = new BigDecimal("100");[m
+[31m-    private static final BigDecimal NOL = new BigDecimal("0.00");[m
+ [m
+[31m-   [m
+[31m-    public static class PelangganOption {[m
+[31m-        public final int idPelanggan;[m
+[31m-        public final String nama;[m
+[31m-[m
+[31m-        public PelangganOption(int idPelanggan, String nama) {[m
+[31m-            this.idPelanggan = idPelanggan;[m
+[31m-            this.nama = nama;[m
+[31m-        }[m
+[31m-[m
+[31m-        @Override[m
+[31m-        public String toString() {[m
+[31m-            return nama;[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-    public static class KendaraanOption {[m
+[31m-        public final int idKendaraan;[m
+[31m-        public final String platNomor;[m
+[31m-        public final String jenis;[m
+[31m-        public final String merek;[m
+[31m-        public final String model;[m
+[31m-        public final BigDecimal hargaSewa;[m
+[31m-        public final BigDecimal persenDendaTelat;[m
+[31m-[m
+[31m-        public KendaraanOption(int idKendaraan, String platNomor, String jenis,[m
+[31m-                               String merek, String model, BigDecimal hargaSewa,[m
+[31m-                               BigDecimal persenDendaTelat) {[m
+[31m-            this.idKendaraan = idKendaraan;[m
+[31m-            this.platNomor = platNomor;[m
+[31m-            this.jenis = jenis;[m
+[31m-            this.merek = merek;[m
+[31m-            this.model = model;[m
+[31m-            this.hargaSewa = hargaSewa == null ? NOL : hargaSewa;[m
+[31m-            this.persenDendaTelat = persenDendaTelat == null[m
+[31m-                    ? new BigDecimal("10.00") : persenDendaTelat;[m
+[31m-        }[m
+[31m-[m
+[31m-        @Override[m
+[31m-        public String toString() {[m
+[31m-            return platNomor + " - " + merek + " " + model[m
+[31m-                    + " (" + formatRupiah(hargaSewa) + "/hari)";[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-     public static class TransaksiData extends transaksiInterface {[m
+[31m-        public final String nama_pelanggan;[m
+[31m-        public final String kendaraan;[m
+[31m-        public final String jenis_kendaraan;[m
+[31m-        public final String plat_nomor;[m
+[31m-        public final String kondisi_ambil_lengkap;[m
+[31m-        public final BigDecimal total_bayar;[m
+[31m-        public final BigDecimal biaya_telat;[m
+[31m-        public final BigDecimal total_biaya_rusak;[m
+[31m-        public final BigDecimal persen_denda_telat;[m
+[31m-        public final int hari_telat;[m
+[31m-        public final LocalDate tgl_kembali_aktual;[m
+[31m-        public final String kondisi_kembali;[m
+[31m-        public final LocalDateTime tgl_ambil_datetime;[m
+[31m-[m
+[31m-        public TransaksiData(int id, String kodeTransaksi, int idPelanggan,[m
+[31m-                             int idKendaraan, int idKasir, LocalDate tglSewa,[m
+[31m-                             LocalDate tglKembaliRencana, BigDecimal hargaPerHari,[m
+[31m-                             int jumlahHari, BigDecimal totalSewa,[m
+[31m-                             LocalDate tglAmbil, String kondisiAmbil,[m
+[31m-                             String status, LocalDateTime createdAt,[m
+[31m-                             String namaPelanggan, String kendaraan,[m
+[31m-                             String jenisKendaraan, String platNomor,[m
+[31m-                             BigDecimal totalBayar, BigDecimal biayaTelat,[m
+[31m-                             BigDecimal totalBiayaRusak, BigDecimal persenDendaTelat,[m
+[31m-                             int hariTelat, LocalDate tglKembaliAktual,[m
+[31m-                             String kondisiKembali, LocalDateTime tglAmbilDatetime) {[m
+[31m-            super(id, kodeTransaksi, idPelanggan, idKendaraan, idKasir,[m
+[31m-                    tglSewa, tglKembaliRencana, hargaPerHari, jumlahHari,[m
+[31m-                    totalSewa, tglAmbil, kondisiAmbil, status, createdAt);[m
+[31m-            this.nama_pelanggan = namaPelanggan;[m
+[31m-            this.kendaraan = kendaraan;[m
+[31m-            this.jenis_kendaraan = jenisKendaraan;[m
+[31m-            this.plat_nomor = platNomor;[m
+[31m-            this.kondisi_ambil_lengkap = kondisiAmbil;[m
+[31m-            this.total_bayar = totalBayar == null ? NOL : totalBayar;[m
+[31m-            this.biaya_telat = biayaTelat == null ? NOL : biayaTelat;[m
+[31m-            this.total_biaya_rusak = totalBiayaRusak == null ? NOL : totalBiayaRusak;[m
+[31m-            this.persen_denda_telat = persenDendaTelat == null[m
+[31m-                    ? new BigDecimal("10.00") : persenDendaTelat;[m
+[31m-            this.hari_telat = hariTelat;[m
+[31m-            this.tgl_kembali_aktual = tglKembaliAktual;[m
+[31m-            this.kondisi_kembali = kondisiKembali;[m
+[31m-            this.tgl_ambil_datetime = tglAmbilDatetime;[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-    public static class DamageInput {[m
+[31m-        public final String deskripsi;[m
+[31m-        public final BigDecimal biaya;[m
+[31m-[m
+[31m-        public DamageInput(String deskripsi, BigDecimal biaya) {[m
+[31m-            if (deskripsi == null || deskripsi.trim().isEmpty()) {[m
+[31m-                throw new IllegalArgumentException("Deskripsi kerusakan wajib diisi.");[m
+[31m-            }[m
+[31m-            if (biaya == null || biaya.compareTo(BigDecimal.ZERO) < 0) {[m
+[31m-                throw new IllegalArgumentException("Biaya kerusakan tidak boleh negatif.");[m
+[31m-            }[m
+[31m-            this.deskripsi = deskripsi.trim();[m
+[31m-            this.biaya = biaya.setScale(2, RoundingMode.HALF_UP);[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-    public static class BookingResult {[m
+[31m-        public final String kodeTransaksi;[m
+[31m-        public final BigDecimal hargaPerHari;[m
+[31m-        public final int jumlahHari;[m
+[31m-        public final BigDecimal totalSewa;[m
+[31m-[m
+[31m-        public BookingResult(String kodeTransaksi, BigDecimal hargaPerHari,[m
+[31m-                             int jumlahHari, BigDecimal totalSewa) {[m
+[31m-            this.kodeTransaksi = kodeTransaksi;[m
+[31m-            this.hargaPerHari = hargaPerHari;[m
+[31m-            this.jumlahHari = jumlahHari;[m
+[31m-            this.totalSewa = totalSewa;[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-    public static class ReturnCalculation {[m
+[31m-        public final int hariTelat;[m
+[31m-        public final BigDecimal totalSewa;[m
+[31m-        public final BigDecimal biayaTelat;[m
+[31m-        public final BigDecimal totalBiayaRusak;[m
+[31m-        public final BigDecimal totalBayar;[m
+[31m-        public final BigDecimal dendaTelatPerHari;[m
+[31m-[m
+[31m-        public ReturnCalculation(int hariTelat, BigDecimal totalSewa,[m
+[31m-                                 BigDecimal biayaTelat, BigDecimal totalBiayaRusak,[m
+[31m-                                 BigDecimal totalBayar, BigDecimal dendaTelatPerHari) {[m
+[31m-            this.hariTelat = hariTelat;[m
+[31m-            this.totalSewa = totalSewa;[m
+[31m-            this.biayaTelat = biayaTelat;[m
+[31m-            this.totalBiayaRusak = totalBiayaRusak;[m
+[31m-            this.totalBayar = totalBayar;[m
+[31m-            this.dendaTelatPerHari = dendaTelatPerHari;[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-    public static class ReturnResult {[m
+[31m-        public final int idPengembalian;[m
+[31m-        public final ReturnCalculation perhitungan;[m
+[31m-[m
+[31m-        public ReturnResult(int idPengembalian, ReturnCalculation perhitungan) {[m
+[31m-            this.idPengembalian = idPengembalian;[m
+[31m-            this.perhitungan = perhitungan;[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-    public static class KerusakanData {[m
+[31m-        public final int idKerusakan;[m
+[31m-        public final int idPengembalian;[m
+[31m-        public final String kodeTransaksi;[m
+[31m-        public final String namaPelanggan;[m
+[31m-        public final String kendaraan;[m
+[31m-        public final BigDecimal biaya;[m
+[31m-        public final BigDecimal totalBayar;[m
+[31m-        public final String deskripsi;[m
+[31m-        public final LocalDate tanggal;[m
+[31m-[m
+[31m-        public KerusakanData(int idKerusakan, int idPengembalian,[m
+[31m-                             String kodeTransaksi, String namaPelanggan,[m
+[31m-                             String kendaraan, BigDecimal biaya,[m
+[31m-                             BigDecimal totalBayar, String deskripsi,[m
+[31m-                             LocalDate tanggal) {[m
+[31m-            this.idKerusakan = idKerusakan;[m
+[31m-            this.idPengembalian = idPengembalian;[m
+[31m-            this.kodeTransaksi = kodeTransaksi;[m
+[31m-            this.namaPelanggan = namaPelanggan;[m
+[31m-            this.kendaraan = kendaraan;[m
+[31m-            this.biaya = biaya == null ? NOL : biaya;[m
+[31m-            this.totalBayar = totalBayar == null ? NOL : totalBayar;[m
+[31m-            this.deskripsi = deskripsi;[m
+[31m-            this.tanggal = tanggal;[m
+[31m-        }[m
+[31m-    }[m
+[31m-[m
+[31m-   [m
+     private ResultSet jalankanSelect(String sql) throws SQLException {[m
+         ResultSet rs = this.setQuery(sql).run();[m
+         if (rs == null) {[m
+[36m@@ -230,11 +47,6 @@[m [mpublic class transaksi extends model {[m
+         return angka.setScale(2, RoundingMode.HALF_UP).toPlainString();[m
+     }[m
+ [m
+[31m-    private static String formatRupiah(BigDecimal nilai) {[m
+[31m-        return "Rp " + java.text.NumberFormat.getNumberInstance([m
+[31m-                java.util.Locale.forLanguageTag("id-ID")).format(nilai);[m
+[31m-    }[m
+[31m-[m
+     private static LocalDate ambilTanggal(ResultSet rs, String kolom) throws SQLException {[m
+         java.sql.Date nilai = rs.getDate(kolom);[m
+         return nilai == null ? null : nilai.toLocalDate();[m
+[1mdiff --git a/src/View/KelolaTransaksi.java b/src/View/KelolaTransaksi.java[m
+[1mindex 04f4ef3..8a7772e 100644[m
+[1m--- a/src/View/KelolaTransaksi.java[m
+[1m+++ b/src/View/KelolaTransaksi.java[m
+[36m@@ -5,14 +5,14 @@[m
+ package View;[m
+ [m
+ import Controller.TransaksiController;[m
+[31m-import Model.transaksi.BookingResult;[m
+[31m-import Model.transaksi.DamageInput;[m
+[31m-import Model.transaksi.KendaraanOption;[m
+[31m-import Model.transaksi.PelangganOption;[m
+[31m-import Model.transaksi.ReturnCalculation;[m
+[31m-import Model.transaksi.ReturnResult;[m
+[31m-import Model.transaksi.TransaksiData;[m
+[31m-import Model.transaksi.KerusakanData;[m
+[32m+[m[32mimport Model.BookingResult;[m
+[32m+[m[32mimport Model.DamageInput;[m
+[32m+[m[32mimport Model.KendaraanOption;[m
+[32m+[m[32mimport Model.PelangganOption;[m
+[32m+[m[32mimport Model.ReturnCalculation;[m
+[32m+[m[32mimport Model.ReturnResult;[m
+[32m+[m[32mimport Model.TransaksiData;[m
+[32m+[m[32mimport Model.KerusakanData;[m
+ import java.math.BigDecimal;[m
+ import java.math.RoundingMode;[m
+ import java.sql.SQLException;[m

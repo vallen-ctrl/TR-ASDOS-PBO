@@ -45,8 +45,10 @@ public class AdminModel {
         Database db = new Database();
         try {
             java.sql.Statement stm = db.start();
+            
+//            FIX Error role when get database remove role -> fix vallen -> found by felix
             String sql = "SELECT id_user, nama_lengkap, username, password_hash, "
-                    + "status_aktif, role FROM admin WHERE username = ? LIMIT 1";
+                    + "status_aktif FROM admin WHERE username = ? LIMIT 1";
             try (PreparedStatement ps = stm.getConnection().prepareStatement(sql)) {
                 ps.setString(1, username);
                 try (ResultSet rs = ps.executeQuery()) {
