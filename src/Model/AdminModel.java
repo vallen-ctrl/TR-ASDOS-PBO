@@ -18,13 +18,11 @@ public class AdminModel {
         public final int idUser;
         public final String namaLengkap;
         public final String username;
-        public final String role;
 
-        Akun(int idUser, String namaLengkap, String username, String role) {
+        Akun(int idUser, String namaLengkap, String username) {
             this.idUser = idUser;
             this.namaLengkap = namaLengkap;
             this.username = username;
-            this.role = role;
         }
     }
 
@@ -58,8 +56,7 @@ public class AdminModel {
                     Akun akun = new Akun(
                             rs.getInt("id_user"),
                             rs.getString("nama_lengkap"),
-                            rs.getString("username"),
-                            rs.getString("role"));
+                            rs.getString("username"));
                     return new Kandidat(akun,
                             rs.getString("password_hash"),
                             rs.getBoolean("status_aktif"));

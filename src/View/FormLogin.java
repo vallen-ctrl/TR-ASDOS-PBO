@@ -56,18 +56,24 @@ public class FormLogin extends javax.swing.JFrame {
     }
 
     private void bukaDashboard(Model.AdminModel.Akun akun) {
-        if ("kasir".equals(akun.role)) {
             DashboardKasir next = new DashboardKasir(akun.namaLengkap);
             next.setSize(this.getSize());
             next.setLocation(this.getLocation());
             next.setVisible(true);
             this.dispose();
-        } else {
-            javax.swing.JOptionPane.showMessageDialog(this,
-                    "Login berhasil, tapi dashboard untuk role '" + akun.role
-                    + "' belum tersedia.", "Info",
-                    javax.swing.JOptionPane.INFORMATION_MESSAGE);
-        }
+//      Bagian ini dihapus karena tidak sesuai dengan ERD -> penghapusan NOV 26 21:18 vallen fix bug -> Found by felix
+//        if ("kasir".equals(akun.role)) {
+//            DashboardKasir next = new DashboardKasir(akun.namaLengkap);
+//            next.setSize(this.getSize());
+//            next.setLocation(this.getLocation());
+//            next.setVisible(true);
+//            this.dispose();
+//        } else {
+//            javax.swing.JOptionPane.showMessageDialog(this,
+//                    "Login berhasil, tapi dashboard untuk role '" + akun.role
+//                    + "' belum tersedia.", "Info",
+//                    javax.swing.JOptionPane.INFORMATION_MESSAGE);
+//        }
     }
 
     private void resetForm() {
