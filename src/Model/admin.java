@@ -6,6 +6,7 @@ import java.sql.SQLException;
 import java.util.ArrayList;
 import java.util.InputMismatchException;
 import java.util.List;
+import utils.PasswordUtil;
 
 /**
  * Model untuk tabel {@code admin}.
@@ -138,7 +139,7 @@ public class admin extends model {
         String[] nilai = {
                 namaLengkap.trim(),
                 username.trim(),
-                password,
+                PasswordUtil.hash(password),
                 aktif ? "1" : "0"
         };
 
@@ -178,7 +179,7 @@ public class admin extends model {
         if (password != null && !password.isBlank()) {
             validator.chekPassword(password);
             kolom.add("password_hash");
-            nilai.add(password);
+            nilai.add(PasswordUtil.hash(password));
         }
 
         return this.update(kolom.toArray(new String[0]), nilai.toArray(new String[0]))
