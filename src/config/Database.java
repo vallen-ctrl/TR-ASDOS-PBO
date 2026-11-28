@@ -43,9 +43,9 @@ public class Database {
         this.dbConf = new dbConfig(
             p.getProperty("db.host", "localhost"),
             p.getProperty("db.port", "3306"),
-            p.getProperty("db.name", "sistemkasir"),
+            p.getProperty("db.name", ""),
             p.getProperty("db.username", "root"),
-            p.getProperty("db.password", "sandi_baru")
+            p.getProperty("db.password", "")
         );
     }
     
